@@ -2,7 +2,7 @@ require 'test/unit'
 require 'rubygems'
 require 'ruby-debug'
 
-require File.expand_path(File.join(File.dirname(__FILE__), '../lib/nexus_file'))
+require File.expand_path(File.join(File.dirname(__FILE__), '../lib/nexus_parser'))
 
 class NexusParserTest < Test::Unit::TestCase
   def test_truth
@@ -10,9 +10,9 @@ class NexusParserTest < Test::Unit::TestCase
   end
 end
 
-class Test_NexusFile_Builder < Test::Unit::TestCase
+class Test_NexusParser_Builder < Test::Unit::TestCase
   def test_builder
-    b = NexusFile::Builder.new
+    b = NexusParser::Builder.new
     assert foo = b.nexus_file
     assert_equal [], foo.taxa
     assert_equal [], foo.characters
@@ -34,221 +34,221 @@ end
 
 class Test_Lexer < Test::Unit::TestCase
   def test_lexer
-    lexer = NexusFile::Lexer.new("[ foo ] BEGIN taxa; BLORF end;")
-    assert lexer.pop(NexusFile::Tokens::LBracket)
-    assert id = lexer.pop(NexusFile::Tokens::ID)
+    lexer = NexusParser::Lexer.new("[ foo ] BEGIN taxa; BLORF end;")
+    assert lexer.pop(NexusParser::Tokens::LBracket)
+    assert id = lexer.pop(NexusParser::Tokens::ID)
     assert_equal(id.value, "foo")
-    assert lexer.pop(NexusFile::Tokens::RBracket)
-    assert lexer.pop(NexusFile::Tokens::BeginBlk)
-    assert lexer.pop(NexusFile::Tokens::TaxaBlk)
-    assert foo = lexer.pop(NexusFile::Tokens::ID)
+    assert lexer.pop(NexusParser::Tokens::RBracket)
+    assert lexer.pop(NexusParser::Tokens::BeginBlk)
+    assert lexer.pop(NexusParser::Tokens::TaxaBlk)
+    assert foo = lexer.pop(NexusParser::Tokens::ID)
     assert_equal("BLORF", foo.value) # truncating whitespace
-    assert lexer.pop(NexusFile::Tokens::BlkEnd)
+    assert lexer.pop(NexusParser::Tokens::BlkEnd)
 
-    lexer2 = NexusFile::Lexer.new("[ foo ] begin authors; BLORF end; [] ()  some crud here")
-    assert lexer2.pop(NexusFile::Tokens::LBracket)
-    assert id = lexer2.pop(NexusFile::Tokens::ID)
+    lexer2 = NexusParser::Lexer.new("[ foo ] begin authors; BLORF end; [] ()  some crud here")
+    assert lexer2.pop(NexusParser::Tokens::LBracket)
+    assert id = lexer2.pop(NexusParser::Tokens::ID)
     assert_equal(id.value, "foo")
-    assert lexer2.pop(NexusFile::Tokens::RBracket)
-    assert lexer2.pop(NexusFile::Tokens::BeginBlk)
-    assert lexer2.pop(NexusFile::Tokens::AuthorsBlk)
-    assert lexer2.pop(NexusFile::Tokens::LBracket)
-    assert lexer2.pop(NexusFile::Tokens::RBracket)
-    assert lexer2.pop(NexusFile::Tokens::LParen)
-    assert lexer2.pop(NexusFile::Tokens::RParen)
+    assert lexer2.pop(NexusParser::Tokens::RBracket)
+    assert lexer2.pop(NexusParser::Tokens::BeginBlk)
+    assert lexer2.pop(NexusParser::Tokens::AuthorsBlk)
+    assert lexer2.pop(NexusParser::Tokens::LBracket)
+    assert lexer2.pop(NexusParser::Tokens::RBracket)
+    assert lexer2.pop(NexusParser::Tokens::LParen)
+    assert lexer2.pop(NexusParser::Tokens::RParen)
 
 
-    lexer3 = NexusFile::Lexer.new("[ foo ] Begin Characters; BLORF end; [] ()  some crud here")
-    assert lexer3.pop(NexusFile::Tokens::LBracket)
-    assert id = lexer3.pop(NexusFile::Tokens::ID)
+    lexer3 = NexusParser::Lexer.new("[ foo ] Begin Characters; BLORF end; [] ()  some crud here")
+    assert lexer3.pop(NexusParser::Tokens::LBracket)
+    assert id = lexer3.pop(NexusParser::Tokens::ID)
     assert_equal(id.value, "foo")
-    assert lexer3.pop(NexusFile::Tokens::RBracket)
-    assert lexer3.pop(NexusFile::Tokens::BeginBlk)
-    assert lexer3.pop(NexusFile::Tokens::ChrsBlk)
-    assert foo = lexer3.pop(NexusFile::Tokens::ID)
+    assert lexer3.pop(NexusParser::Tokens::RBracket)
+    assert lexer3.pop(NexusParser::Tokens::BeginBlk)
+    assert lexer3.pop(NexusParser::Tokens::ChrsBlk)
+    assert foo = lexer3.pop(NexusParser::Tokens::ID)
     assert_equal("BLORF", foo.value) 
-    assert lexer3.pop(NexusFile::Tokens::BlkEnd)
+    assert lexer3.pop(NexusParser::Tokens::BlkEnd)
 
-    lexer4 = NexusFile::Lexer.new("Begin Characters; 123123123 end; [] ()  some crud here")
-    assert lexer4.pop(NexusFile::Tokens::BeginBlk)
-    assert lexer4.pop(NexusFile::Tokens::ChrsBlk)
-    assert foo = lexer4.pop(NexusFile::Tokens::Number)
+    lexer4 = NexusParser::Lexer.new("Begin Characters; 123123123 end; [] ()  some crud here")
+    assert lexer4.pop(NexusParser::Tokens::BeginBlk)
+    assert lexer4.pop(NexusParser::Tokens::ChrsBlk)
+    assert foo = lexer4.pop(NexusParser::Tokens::Number)
     assert_equal(123123123, foo.value) 
-    assert lexer4.pop(NexusFile::Tokens::BlkEnd)
+    assert lexer4.pop(NexusParser::Tokens::BlkEnd)
 
-    lexer5 = NexusFile::Lexer.new("(0,1)")
-    assert lexer5.pop(NexusFile::Tokens::LParen)
-    assert foo = lexer5.pop(NexusFile::Tokens::Number)
+    lexer5 = NexusParser::Lexer.new("(0,1)")
+    assert lexer5.pop(NexusParser::Tokens::LParen)
+    assert foo = lexer5.pop(NexusParser::Tokens::Number)
     assert_equal(0, foo.value) 
-    assert lexer5.pop(NexusFile::Tokens::Comma)
-    assert foo = lexer5.pop(NexusFile::Tokens::Number)
+    assert lexer5.pop(NexusParser::Tokens::Comma)
+    assert foo = lexer5.pop(NexusParser::Tokens::Number)
     assert_equal(1, foo.value) 
-    assert lexer5.pop(NexusFile::Tokens::RParen)
+    assert lexer5.pop(NexusParser::Tokens::RParen)
 
-    lexer6 =  NexusFile::Lexer.new(" 210(0,1)10A1\n")
-    assert foo = lexer6.pop(NexusFile::Tokens::RowVec)
+    lexer6 =  NexusParser::Lexer.new(" 210(0,1)10A1\n")
+    assert foo = lexer6.pop(NexusParser::Tokens::RowVec)
     assert_equal(["2","1","0",["0","1"],"1","0","A","1"], foo.value) 
 
-    lexer6a =  NexusFile::Lexer.new("  21a(0 1)0b{3 4 5}(0)(1 a)\n")
-    assert foo = lexer6a.pop(NexusFile::Tokens::RowVec)
+    lexer6a =  NexusParser::Lexer.new("  21a(0 1)0b{3 4 5}(0)(1 a)\n")
+    assert foo = lexer6a.pop(NexusParser::Tokens::RowVec)
     assert_equal(["2", "1", "a", ["0", "1"], "0", "b", ["3", "4", "5"], "0", ["1", "a"]], foo.value) 
     
-    lexer6b =  NexusFile::Lexer.new(" 201{0 1}{0 1}0100)\x0A") # *nix line ending
-    assert foo = lexer6b.pop(NexusFile::Tokens::RowVec)
+    lexer6b =  NexusParser::Lexer.new(" 201{0 1}{0 1}0100)\x0A") # *nix line ending
+    assert foo = lexer6b.pop(NexusParser::Tokens::RowVec)
     assert_equal(["2", "0", "1", ["0", "1"], ["0", "1"], "0", "1", "0", "0"], foo.value) 
 
-    lexer6c =  NexusFile::Lexer.new(" 201{0 1}{0 1}0100)\x0D\x0A") # * dos line ending
-    assert foo = lexer6c.pop(NexusFile::Tokens::RowVec)
+    lexer6c =  NexusParser::Lexer.new(" 201{0 1}{0 1}0100)\x0D\x0A") # * dos line ending
+    assert foo = lexer6c.pop(NexusParser::Tokens::RowVec)
     assert_equal(["2", "0", "1", ["0", "1"], ["0", "1"], "0", "1", "0", "0"], foo.value) 
 
 
-    lexer7 = NexusFile::Lexer.new("read nothing till Nexus, not that nexus 13243 Block [] ();, this one: #nexus FOO")
-    assert foo = lexer7.pop(NexusFile::Tokens::NexusStart)
+    lexer7 = NexusParser::Lexer.new("read nothing till Nexus, not that nexus 13243 Block [] ();, this one: #nexus FOO")
+    assert foo = lexer7.pop(NexusParser::Tokens::NexusStart)
     assert_equal('#nexus', foo.value) 
 
 
     ## we strip comments before parsing now
-    # lexer8 = NexusFile::Lexer.new("[ foo ] Begin Characters; BLORF end; [] ()  some crud here")
-    # assert foo = lexer8.pop(NexusFile::Tokens::NexusComment)
+    # lexer8 = NexusParser::Lexer.new("[ foo ] Begin Characters; BLORF end; [] ()  some crud here")
+    # assert foo = lexer8.pop(NexusParser::Tokens::NexusComment)
     # assert_equal "foo", foo.value
     
-    # assert lexer.pop(NexusFile::Tokens::Colon)
-    # assert num = lexer.pop(NexusFile::Tokens::Number)
+    # assert lexer.pop(NexusParser::Tokens::Colon)
+    # assert num = lexer.pop(NexusParser::Tokens::Number)
     # assert_equal(num.value, 0.0)
-    # assert lexer.pop(NexusFile::Tokens::Comma)
-    # assert lexer.pop(NexusFile::Tokens::SemiColon)
+    # assert lexer.pop(NexusParser::Tokens::Comma)
+    # assert lexer.pop(NexusParser::Tokens::SemiColon)
   end
 
   def test_row_vec
-    lexer = NexusFile::Lexer.new("0?(0 1)10(A BD , C)1(0,1,2)1-\n")
-    assert foo = lexer.pop(NexusFile::Tokens::RowVec)
+    lexer = NexusParser::Lexer.new("0?(0 1)10(A BD , C)1(0,1,2)1-\n")
+    assert foo = lexer.pop(NexusParser::Tokens::RowVec)
     assert_equal(["0", "?", ["0", "1"], "1", "0", ["A", "BD", "C"], "1", ["0", "1", "2"], "1", "-"], foo.value) 
   end
 
   def test_punctuation
-    lexer = NexusFile::Lexer.new(',/=](\'NOT23\'[);,')
-    assert lexer.peek(NexusFile::Tokens::Comma)
-    assert lexer.pop(NexusFile::Tokens::Comma)
-    assert lexer.pop(NexusFile::Tokens::BckSlash)
-    assert lexer.pop(NexusFile::Tokens::Equals)
-    assert lexer.pop(NexusFile::Tokens::RBracket)
-    assert lexer.pop(NexusFile::Tokens::LParen)
-    assert foo = lexer.pop(NexusFile::Tokens::Label)
+    lexer = NexusParser::Lexer.new(',/=](\'NOT23\'[);,')
+    assert lexer.peek(NexusParser::Tokens::Comma)
+    assert lexer.pop(NexusParser::Tokens::Comma)
+    assert lexer.pop(NexusParser::Tokens::BckSlash)
+    assert lexer.pop(NexusParser::Tokens::Equals)
+    assert lexer.pop(NexusParser::Tokens::RBracket)
+    assert lexer.pop(NexusParser::Tokens::LParen)
+    assert foo = lexer.pop(NexusParser::Tokens::Label)
     assert_equal "NOT23", foo.value
-    assert lexer.pop(NexusFile::Tokens::LBracket)
-    assert lexer.pop(NexusFile::Tokens::RParen)
-    assert lexer.pop(NexusFile::Tokens::SemiColon)
-    assert lexer.pop(NexusFile::Tokens::Comma)
+    assert lexer.pop(NexusParser::Tokens::LBracket)
+    assert lexer.pop(NexusParser::Tokens::RParen)
+    assert lexer.pop(NexusParser::Tokens::SemiColon)
+    assert lexer.pop(NexusParser::Tokens::Comma)
 
   end
 
   def test_tax_labels
-    lexer = NexusFile::Lexer.new("Taxlabels 'foo' bar blorf \"stuff things\" stuff 'and foo';")
-    assert foo = lexer.pop(NexusFile::Tokens::Taxlabels)
+    lexer = NexusParser::Lexer.new("Taxlabels 'foo' bar blorf \"stuff things\" stuff 'and foo';")
+    assert foo = lexer.pop(NexusParser::Tokens::Taxlabels)
     assert_equal("Taxlabels ", foo.value) 
   end
 
   def test_EndBlk
-    lexer = NexusFile::Lexer.new("   \n\n End   ;")
-    assert foo = lexer.pop(NexusFile::Tokens::EndBlk)
-    lexer = NexusFile::Lexer.new("\n\nEnd;")
-    assert foo = lexer.pop(NexusFile::Tokens::EndBlk)
+    lexer = NexusParser::Lexer.new("   \n\n End   ;")
+    assert foo = lexer.pop(NexusParser::Tokens::EndBlk)
+    lexer = NexusParser::Lexer.new("\n\nEnd;")
+    assert foo = lexer.pop(NexusParser::Tokens::EndBlk)
   
-    lexer = NexusFile::Lexer.new("123123  \n\nEnd;")
-    assert !lexer.peek(NexusFile::Tokens::EndBlk)
-    lexer = NexusFile::Lexer.new("this is not an \"end\"\n\nEnd;")
-    assert !lexer.peek(NexusFile::Tokens::EndBlk)
+    lexer = NexusParser::Lexer.new("123123  \n\nEnd;")
+    assert !lexer.peek(NexusParser::Tokens::EndBlk)
+    lexer = NexusParser::Lexer.new("this is not an \"end\"\n\nEnd;")
+    assert !lexer.peek(NexusParser::Tokens::EndBlk)
   end
 
   def test_semicolon
-    lexer = NexusFile::Lexer.new("; Matrix foo")
-    assert lexer.peek(NexusFile::Tokens::SemiColon)
-    assert foo = lexer.pop(NexusFile::Tokens::SemiColon)
+    lexer = NexusParser::Lexer.new("; Matrix foo")
+    assert lexer.peek(NexusParser::Tokens::SemiColon)
+    assert foo = lexer.pop(NexusParser::Tokens::SemiColon)
   end
 
   def test_label
-      lexer = NexusFile::Lexer.new(' \'foo\' bar, blorf; "stuff things" stuff \'and foo\' 23434 ""asdf""  \'Foo_And_Stuff\' ')
-      assert foo = lexer.pop(NexusFile::Tokens::Label)
+      lexer = NexusParser::Lexer.new(' \'foo\' bar, blorf; "stuff things" stuff \'and foo\' 23434 ""asdf""  \'Foo_And_Stuff\' ')
+      assert foo = lexer.pop(NexusParser::Tokens::Label)
       assert_equal "foo", foo.value
-      assert foo = lexer.pop(NexusFile::Tokens::Label)
+      assert foo = lexer.pop(NexusParser::Tokens::Label)
       assert_equal "bar", foo.value
-      assert lexer.pop(NexusFile::Tokens::Comma)
-      assert foo = lexer.pop(NexusFile::Tokens::Label)
+      assert lexer.pop(NexusParser::Tokens::Comma)
+      assert foo = lexer.pop(NexusParser::Tokens::Label)
       assert_equal "blorf", foo.value
-      assert lexer.pop(NexusFile::Tokens::SemiColon)
-      assert foo = lexer.pop(NexusFile::Tokens::Label)
+      assert lexer.pop(NexusParser::Tokens::SemiColon)
+      assert foo = lexer.pop(NexusParser::Tokens::Label)
       assert_equal "stuff things", foo.value
-      assert foo = lexer.pop(NexusFile::Tokens::Label)
+      assert foo = lexer.pop(NexusParser::Tokens::Label)
       assert_equal "stuff", foo.value
-      assert foo = lexer.pop(NexusFile::Tokens::Label)
+      assert foo = lexer.pop(NexusParser::Tokens::Label)
       assert_equal "and foo", foo.value
-      assert foo = lexer.pop(NexusFile::Tokens::Label)
+      assert foo = lexer.pop(NexusParser::Tokens::Label)
       assert_equal "23434", foo.value
-      assert foo = lexer.pop(NexusFile::Tokens::Label)
+      assert foo = lexer.pop(NexusParser::Tokens::Label)
       assert_equal '"asdf"', foo.value
-      assert foo = lexer.pop(NexusFile::Tokens::Label)
+      assert foo = lexer.pop(NexusParser::Tokens::Label)
       assert_equal 'Foo_And_Stuff', foo.value
   end
 
   def test_odd_labels
-    lexer = NexusFile::Lexer.new("blorf 'fan shaped, narrow base and broad tip (Selkirkiella, Kochiura)' \"\"\" foo \"\"\"  '''rupununi''' '''tanzania''' '''cup-shaped'''   bar  blorf\n;")
-    assert foo = lexer.pop(NexusFile::Tokens::Label)
+    lexer = NexusParser::Lexer.new("blorf 'fan shaped, narrow base and broad tip (Selkirkiella, Kochiura)' \"\"\" foo \"\"\"  '''rupununi''' '''tanzania''' '''cup-shaped'''   bar  blorf\n;")
+    assert foo = lexer.pop(NexusParser::Tokens::Label)
     assert_equal "blorf", foo.value
-    assert foo = lexer.pop(NexusFile::Tokens::Label)
+    assert foo = lexer.pop(NexusParser::Tokens::Label)
     assert_equal "fan shaped, narrow base and broad tip (Selkirkiella, Kochiura)", foo.value
-    assert foo = lexer.pop(NexusFile::Tokens::Label)
+    assert foo = lexer.pop(NexusParser::Tokens::Label)
     assert_equal '"" foo ""', foo.value
-    assert foo = lexer.pop(NexusFile::Tokens::Label)
+    assert foo = lexer.pop(NexusParser::Tokens::Label)
     assert_equal "''rupununi''", foo.value
-    assert foo = lexer.pop(NexusFile::Tokens::Label)
+    assert foo = lexer.pop(NexusParser::Tokens::Label)
     assert_equal "''tanzania''", foo.value
-    assert foo = lexer.pop(NexusFile::Tokens::Label)
+    assert foo = lexer.pop(NexusParser::Tokens::Label)
     assert_equal "''cup-shaped''", foo.value
-    assert foo = lexer.pop(NexusFile::Tokens::Label)
+    assert foo = lexer.pop(NexusParser::Tokens::Label)
     assert_equal "bar", foo.value
-    assert foo = lexer.pop(NexusFile::Tokens::Label)
+    assert foo = lexer.pop(NexusParser::Tokens::Label)
     assert_equal "blorf", foo.value
-    assert foo = lexer.pop(NexusFile::Tokens::SemiColon)
+    assert foo = lexer.pop(NexusParser::Tokens::SemiColon)
   end
 
   def test_title
-    lexer = NexusFile::Lexer.new( "TITLE 'Scharff&Coddington_1997_Araneidae';")
-    assert foo = lexer.pop(NexusFile::Tokens::Title)
+    lexer = NexusParser::Lexer.new( "TITLE 'Scharff&Coddington_1997_Araneidae';")
+    assert foo = lexer.pop(NexusParser::Tokens::Title)
     assert_equal  "TITLE 'Scharff&Coddington_1997_Araneidae';", foo.value
   end
 
 
   def test_dimensions
     input = " DIMENSIONS  NCHAR= 10" 
-    lexer = NexusFile::Lexer.new(input)
-    assert foo = lexer.pop(NexusFile::Tokens::Dimensions)
+    lexer = NexusParser::Lexer.new(input)
+    assert foo = lexer.pop(NexusParser::Tokens::Dimensions)
     assert_equal  "DIMENSIONS", foo.value
   end
 
   def test_format
     input = " format  NCHAR= 10" 
-    lexer = NexusFile::Lexer.new(input)
-    assert foo = lexer.pop(NexusFile::Tokens::Format)
+    lexer = NexusParser::Lexer.new(input)
+    assert foo = lexer.pop(NexusParser::Tokens::Format)
     assert_equal  "format", foo.value
   end
 
   def test_odd_value_pair
-    lexer = NexusFile::Lexer.new(" TEXT   CHARACTER = 3 TEXT = A62.003;
+    lexer = NexusParser::Lexer.new(" TEXT   CHARACTER = 3 TEXT = A62.003;
                         
                         TEXT   CHARACTER = 4 TEXT = A62.004; \n     end;   ")
-    assert foo = lexer.pop(NexusFile::Tokens::Label)
-    assert foo = lexer.pop(NexusFile::Tokens::ValuePair)
+    assert foo = lexer.pop(NexusParser::Tokens::Label)
+    assert foo = lexer.pop(NexusParser::Tokens::ValuePair)
     blorf = {:character => "3"}
     assert_equal blorf , foo.value
-    assert foo = lexer.pop(NexusFile::Tokens::ValuePair)
+    assert foo = lexer.pop(NexusParser::Tokens::ValuePair)
     blorf = {:text => "A62.003"}
     assert_equal blorf , foo.value
-    assert foo = lexer.pop(NexusFile::Tokens::Label)
+    assert foo = lexer.pop(NexusParser::Tokens::Label)
     assert_equal "TEXT", foo.value
-    assert foo = lexer.pop(NexusFile::Tokens::ValuePair)
+    assert foo = lexer.pop(NexusParser::Tokens::ValuePair)
     blorf = {:character => "4"}
     assert_equal blorf , foo.value
-    assert foo = lexer.pop(NexusFile::Tokens::ValuePair)
+    assert foo = lexer.pop(NexusParser::Tokens::ValuePair)
     blorf = {:text => "A62.004"}
     assert_equal blorf , foo.value
 
@@ -257,92 +257,92 @@ class Test_Lexer < Test::Unit::TestCase
 
   def test_value_pair
 
-    lexer0 = NexusFile::Lexer.new(' DATATYPE=STANDARD ')
-    assert foo = lexer0.pop(NexusFile::Tokens::ValuePair)
+    lexer0 = NexusParser::Lexer.new(' DATATYPE=STANDARD ')
+    assert foo = lexer0.pop(NexusParser::Tokens::ValuePair)
     blorf = {:datatype => "STANDARD"}
     assert_equal blorf , foo.value
 
-    lexer = NexusFile::Lexer.new(' DATATYPE = STANDARD ')
-    assert foo = lexer.pop(NexusFile::Tokens::ValuePair)
+    lexer = NexusParser::Lexer.new(' DATATYPE = STANDARD ')
+    assert foo = lexer.pop(NexusParser::Tokens::ValuePair)
     blorf = {:datatype => "STANDARD"}
     assert_equal blorf , foo.value
 
-    lexer2 = NexusFile::Lexer.new(' DATATYPE ="STANDARD" ')
-    assert foo = lexer2.pop(NexusFile::Tokens::ValuePair)
+    lexer2 = NexusParser::Lexer.new(' DATATYPE ="STANDARD" ')
+    assert foo = lexer2.pop(NexusParser::Tokens::ValuePair)
     assert_equal blorf, foo.value
 
-    lexer3 = NexusFile::Lexer.new('DATATYPE= "STANDARD" ')
-    assert foo = lexer3.pop(NexusFile::Tokens::ValuePair)
+    lexer3 = NexusParser::Lexer.new('DATATYPE= "STANDARD" ')
+    assert foo = lexer3.pop(NexusParser::Tokens::ValuePair)
     assert_equal blorf, foo.value
 
     input= "   NCHAR=10 ntaxa =10 nfoo='999' nbar = \" a b c  \" ;  "
-    lexer4 = NexusFile::Lexer.new(input)
-    assert foo = lexer4.pop(NexusFile::Tokens::ValuePair)
+    lexer4 = NexusParser::Lexer.new(input)
+    assert foo = lexer4.pop(NexusParser::Tokens::ValuePair)
     smorf = {:nchar => '10'}
     assert_equal smorf, foo.value
-    assert foo = lexer4.pop(NexusFile::Tokens::ValuePair)
+    assert foo = lexer4.pop(NexusParser::Tokens::ValuePair)
     smorf = {:ntaxa => '10'}
     assert_equal smorf, foo.value
-    assert foo = lexer4.pop(NexusFile::Tokens::ValuePair)
+    assert foo = lexer4.pop(NexusParser::Tokens::ValuePair)
     smorf = {:nfoo => '999'}
     assert_equal smorf, foo.value
-    assert foo = lexer4.pop(NexusFile::Tokens::ValuePair)
+    assert foo = lexer4.pop(NexusParser::Tokens::ValuePair)
     smorf = {:nbar => 'a b c'}
     assert_equal smorf, foo.value
 
-    lexer5 = NexusFile::Lexer.new(' symbols= " a c b d 1 " ')
-    assert foo = lexer5.pop(NexusFile::Tokens::ValuePair)
+    lexer5 = NexusParser::Lexer.new(' symbols= " a c b d 1 " ')
+    assert foo = lexer5.pop(NexusParser::Tokens::ValuePair)
     smorf = {:symbols => 'a c b d 1'}
     assert_equal smorf, foo.value
 
-    lexer6 = NexusFile::Lexer.new(' missing = - ')
-    assert foo = lexer6.pop(NexusFile::Tokens::ValuePair)
+    lexer6 = NexusParser::Lexer.new(' missing = - ')
+    assert foo = lexer6.pop(NexusParser::Tokens::ValuePair)
     smorf = {:missing => '-'}
     assert_equal smorf, foo.value
   
-    lexer6a = NexusFile::Lexer.new("ntaxa=1;\n")
-    assert foo = lexer6a.pop(NexusFile::Tokens::ValuePair)
+    lexer6a = NexusParser::Lexer.new("ntaxa=1;\n")
+    assert foo = lexer6a.pop(NexusParser::Tokens::ValuePair)
     smorf = {:ntaxa => '1'}
     assert_equal smorf, foo.value 
 
-    lexer7 = NexusFile::Lexer.new("ntaxa =1;\n")
-    assert foo = lexer7.pop(NexusFile::Tokens::ValuePair)
+    lexer7 = NexusParser::Lexer.new("ntaxa =1;\n")
+    assert foo = lexer7.pop(NexusParser::Tokens::ValuePair)
     smorf = {:ntaxa => '1'}
     assert_equal smorf, foo.value 
   
-    lexer8 = NexusFile::Lexer.new(" ntaxa = 1 ;\n")
-    assert foo = lexer8.pop(NexusFile::Tokens::ValuePair)
+    lexer8 = NexusParser::Lexer.new(" ntaxa = 1 ;\n")
+    assert foo = lexer8.pop(NexusParser::Tokens::ValuePair)
     smorf = {:ntaxa => '1'}
     assert_equal smorf, foo.value 
 
-    lexer9 = NexusFile::Lexer.new(" TF = (CM 'This is an annotation that haa a hard return in it^n^n^n^nSo there!') ")
-    assert foo = lexer9.pop(NexusFile::Tokens::ValuePair)
+    lexer9 = NexusParser::Lexer.new(" TF = (CM 'This is an annotation that haa a hard return in it^n^n^n^nSo there!') ")
+    assert foo = lexer9.pop(NexusParser::Tokens::ValuePair)
     smorf = {:tf => "(CM 'This is an annotation that haa a hard return in it^n^n^n^nSo there!')" }
     assert_equal smorf, foo.value 
  
-    lexer10 = NexusFile::Lexer.new(" TF = (CM 'This is an value pair that has (parens) within the value, twice! ()') ; some stuff left here ")
-    assert foo = lexer10.pop(NexusFile::Tokens::ValuePair)
+    lexer10 = NexusParser::Lexer.new(" TF = (CM 'This is an value pair that has (parens) within the value, twice! ()') ; some stuff left here ")
+    assert foo = lexer10.pop(NexusParser::Tokens::ValuePair)
     smorf = {:tf => "(CM 'This is an value pair that has (parens) within the value, twice! ()')" }
     assert_equal smorf, foo.value 
     
-    lexer11 = NexusFile::Lexer.new("CHARACTER = 1 TEXT = A62.001;")
-    assert_equal true, !lexer11.peek(NexusFile::Tokens::SemiColon)
-    assert_equal true, lexer11.peek(NexusFile::Tokens::ValuePair)
-    assert foo = lexer11.pop(NexusFile::Tokens::ValuePair)
+    lexer11 = NexusParser::Lexer.new("CHARACTER = 1 TEXT = A62.001;")
+    assert_equal true, !lexer11.peek(NexusParser::Tokens::SemiColon)
+    assert_equal true, lexer11.peek(NexusParser::Tokens::ValuePair)
+    assert foo = lexer11.pop(NexusParser::Tokens::ValuePair)
     smorf = {:character => "1" }
     assert_equal smorf, foo.value 
-    assert foo = lexer11.pop(NexusFile::Tokens::ValuePair)
+    assert foo = lexer11.pop(NexusParser::Tokens::ValuePair)
   end
 
   def test_MesquiteIDs
-    lexer = NexusFile::Lexer.new('IDS JC1191fcddc3b425 JC1191fcddc3b426 JC1191fcddc3b427 JC1191fcddc3b428 JC1191fcddc3b429 JC1191fcddc3b430 JC1191fcddc3b431 JC1191fcddc3b432 JC1191fcddc3b433 JC1191fcddc3b434 ;
+    lexer = NexusParser::Lexer.new('IDS JC1191fcddc3b425 JC1191fcddc3b426 JC1191fcddc3b427 JC1191fcddc3b428 JC1191fcddc3b429 JC1191fcddc3b430 JC1191fcddc3b431 JC1191fcddc3b432 JC1191fcddc3b433 JC1191fcddc3b434 ;
       BLOCKID JC1191fcddc0c0;')
-    assert lexer.pop(NexusFile::Tokens::MesquiteIDs)
-    assert lexer.pop(NexusFile::Tokens::MesquiteBlockID)
+    assert lexer.pop(NexusParser::Tokens::MesquiteIDs)
+    assert lexer.pop(NexusParser::Tokens::MesquiteBlockID)
   end
 
   def test_TreesBlk
-  lexer = NexusFile::Lexer.new("BEGIN TREES;
+  lexer = NexusParser::Lexer.new("BEGIN TREES;
       Title Imported_trees;
       LINK Taxa = 'Scharff&Coddington_1997_Araneidae';
       TRANSLATE
@@ -377,25 +377,25 @@ class Test_Lexer < Test::Unit::TestCase
 
     END;")
  
-    assert lexer.pop(NexusFile::Tokens::BeginBlk)
-    assert foo = lexer.pop(NexusFile::Tokens::TreesBlk)
+    assert lexer.pop(NexusParser::Tokens::BeginBlk)
+    assert foo = lexer.pop(NexusParser::Tokens::TreesBlk)
     assert_equal 'TREES', foo.value.slice(0,5)
     assert_equal 'END;', foo.value.slice(-4,4)
-    assert lexer.pop(NexusFile::Tokens::BeginBlk)
-    assert lexer.pop(NexusFile::Tokens::LabelsBlk)
+    assert lexer.pop(NexusParser::Tokens::BeginBlk)
+    assert lexer.pop(NexusParser::Tokens::LabelsBlk)
 
   end
 
   def test_NotesBlk
     input = "BEGIN NOTES ;" 
-    lexer = NexusFile::Lexer.new(input)
-    assert lexer.pop(NexusFile::Tokens::BeginBlk)
-    assert foo = lexer.pop(NexusFile::Tokens::NotesBlk)
+    lexer = NexusParser::Lexer.new(input)
+    assert lexer.pop(NexusParser::Tokens::BeginBlk)
+    assert foo = lexer.pop(NexusParser::Tokens::NotesBlk)
     assert "NOTES", foo.value
   end
 
  def test_LabelsBlk
-  lexer = NexusFile::Lexer.new("
+  lexer = NexusParser::Lexer.new("
     LABELS;
       CHARGROUPLABEL MM_Genitalia COLOR = (RGB 1.0 0.4 0.4) ;
       CHARGROUPLABEL Somatic COLOR = (RGB 0.6 1.0 0.33333333) ;
@@ -407,29 +407,27 @@ class Test_Lexer < Test::Unit::TestCase
 
   BEGIN some other block;")
   
-    assert foo = lexer.pop(NexusFile::Tokens::LabelsBlk)
+    assert foo = lexer.pop(NexusParser::Tokens::LabelsBlk)
     assert_equal 'LABELS', foo.value.slice(0,6)
     assert_equal 'END;', foo.value.slice(-4,4)
   end
 
  def test_SetsBlk
-  lexer = NexusFile::Lexer.new("
+  lexer = NexusParser::Lexer.new("
         SETS;
     CHARPARTITION * UNTITLED  =  Somatic :  1 -  2 4, MM_Genitalia :  5 -  8 10;
 
     END;
   BEGIN some other block;")
   
-    assert foo = lexer.pop(NexusFile::Tokens::SetsBlk)
+    assert foo = lexer.pop(NexusParser::Tokens::SetsBlk)
     assert_equal 'SETS', foo.value.slice(0,4)
     assert_equal 'END;', foo.value.slice(-4,4)
   end
 
-
-
   def test_lexer_errors
-    lexer = NexusFile::Lexer.new("*&")
-    assert_raise(NexusFile::ParseError) {lexer.peek(NexusFile::Tokens::ID)}
+    lexer = NexusParser::Lexer.new("*&")
+    assert_raise(NexusParser::ParseError) {lexer.peek(NexusParser::Tokens::ID)}
   end
 end
 
@@ -437,7 +435,7 @@ end
 class Test_Parser < Test::Unit::TestCase
   def setup
     # a Mesquite 2.n or higher file
-    @nf = File.read('MX_test_03.nex') # MX_test_01.nex
+    @nf = File.read(File.expand_path(File.join(File.dirname(__FILE__), '../test/MX_test_03.nex')))
   end
 
   def teardown
@@ -447,7 +445,7 @@ class Test_Parser < Test::Unit::TestCase
   def test_that_file_might_be_nexus
     begin
       assert !parse_nexus_file("#Nexblux Begin Natrix end;")
-    rescue NexusFile::ParseError 
+    rescue NexusParser::ParseError 
       assert true
     end
   end
@@ -483,9 +481,9 @@ class Test_Parser < Test::Unit::TestCase
         BLOCKID JC1191fcddc0c4;
       END;"
 
-    builder = NexusFile::Builder.new
-    lexer = NexusFile::Lexer.new(input)
-    NexusFile::Parser.new(lexer,builder).parse_taxa_blk
+    builder = NexusParser::Builder.new
+    lexer = NexusParser::Lexer.new(input)
+    NexusParser::Parser.new(lexer,builder).parse_taxa_blk
     foo = builder.nexus_file 
 
     assert_equal 10, foo.taxa.size
@@ -505,9 +503,9 @@ class Test_Parser < Test::Unit::TestCase
         ;
       END;"
 
-    builder = NexusFile::Builder.new
-    lexer = NexusFile::Lexer.new(input)
-    NexusFile::Parser.new(lexer,builder).parse_taxa_blk
+    builder = NexusParser::Builder.new
+    lexer = NexusParser::Lexer.new(input)
+    NexusParser::Parser.new(lexer,builder).parse_taxa_blk
     foo = builder.nexus_file 
 
     assert_equal 10, foo.taxa.size
@@ -544,8 +542,8 @@ class Test_Parser < Test::Unit::TestCase
 
     END;"
 
-    builder = NexusFile::Builder.new
-    @lexer = NexusFile::Lexer.new(input)
+    builder = NexusParser::Builder.new
+    @lexer = NexusParser::Lexer.new(input)
 
     # add the taxa, assumes we have them for comparison purposes, though we (shouldn't) ultimately need them
     # foo.taxa = ["Dictyna", "Uloborus", "Deinopis", "Nephila&Herennia", "Nephilenygys_cruentata", "Meta", "Leucauge_venusta", "Pachygnatha", "Theridiosoma_01", "Tetragnatha"]
@@ -553,7 +551,7 @@ class Test_Parser < Test::Unit::TestCase
     # stub the taxa, they would otherwise get added in dimensions or taxa block
     (0..9).each{|i| builder.stub_taxon}
 
-    NexusFile::Parser.new(@lexer,builder).parse_characters_blk
+    NexusParser::Parser.new(@lexer,builder).parse_characters_blk
     foo = builder.nexus_file 
     
     assert_equal 10, foo.characters.size
@@ -595,8 +593,8 @@ class Test_Parser < Test::Unit::TestCase
     ;
     END;"
 
-    builder = NexusFile::Builder.new
-    @lexer = NexusFile::Lexer.new(input)
+    builder = NexusParser::Builder.new
+    @lexer = NexusParser::Lexer.new(input)
 
     # add the taxa, assumes we have them for comparison purposes, though we (shouldn't) ultimately need them
     # foo.taxa = ["Dictyna", "Uloborus", "Deinopis", "Nephila&Herennia", "Nephilenygys_cruentata", "Meta", "Leucauge_venusta", "Pachygnatha", "Theridiosoma_01", "Tetragnatha"]
@@ -604,7 +602,7 @@ class Test_Parser < Test::Unit::TestCase
     # stub the taxa, they would otherwise get added in dimensions or taxa block
     (0..9).each{|i| builder.stub_taxon}
 
-    NexusFile::Parser.new(@lexer,builder).parse_characters_blk
+    NexusParser::Parser.new(@lexer,builder).parse_characters_blk
     foo = builder.nexus_file 
     
     assert_equal 10, foo.characters.size
@@ -630,10 +628,10 @@ class Test_Parser < Test::Unit::TestCase
 
   def test_parse_dimensions
     input= " DIMENSIONS  NCHAR=10 ntaxa =10 nfoo='999' nbar = \" a b c  \" blorf=2;  " 
-    builder = NexusFile::Builder.new
-    lexer = NexusFile::Lexer.new(input)
+    builder = NexusParser::Builder.new
+    lexer = NexusParser::Lexer.new(input)
 
-    NexusFile::Parser.new(lexer,builder).parse_dimensions
+    NexusParser::Parser.new(lexer,builder).parse_dimensions
     foo = builder.nexus_file 
 
     assert_equal "10", foo.vars[:nchar]
@@ -646,10 +644,10 @@ class Test_Parser < Test::Unit::TestCase
 
   def test_parse_format
     input = "FORMAT DATATYPE = STANDARD GAP = - MISSING = ? SYMBOLS = \"  0 1 2 3 4 5 6 7 8 9 A\";"
-    builder = NexusFile::Builder.new
-    lexer = NexusFile::Lexer.new(input)
+    builder = NexusParser::Builder.new
+    lexer = NexusParser::Lexer.new(input)
 
-    NexusFile::Parser.new(lexer,builder).parse_format
+    NexusParser::Parser.new(lexer,builder).parse_format
     foo = builder.nexus_file 
 
     assert_equal "STANDARD", foo.vars[:datatype]
@@ -665,12 +663,12 @@ class Test_Parser < Test::Unit::TestCase
     MATRIX
     fooo 01 more stuff here that should not be hit"
     
-    builder = NexusFile::Builder.new
-    lexer = NexusFile::Lexer.new(input)
+    builder = NexusParser::Builder.new
+    lexer = NexusParser::Lexer.new(input)
     
     (0..9).each{builder.stub_chr()}
     
-    NexusFile::Parser.new(lexer,builder).parse_chr_state_labels
+    NexusParser::Parser.new(lexer,builder).parse_chr_state_labels
 
     foo = builder.nexus_file 
     assert_equal 10, foo.characters.size
@@ -720,12 +718,12 @@ class Test_Parser < Test::Unit::TestCase
       Matrix
       fooo 01 more stuff here that should not be hit"
     
-    builder = NexusFile::Builder.new
-    lexer = NexusFile::Lexer.new(input)
+    builder = NexusParser::Builder.new
+    lexer = NexusParser::Lexer.new(input)
 
      (0..29).each{builder.stub_chr()}
     
-    NexusFile::Parser.new(lexer,builder).parse_chr_state_labels
+    NexusParser::Parser.new(lexer,builder).parse_chr_state_labels
 
     foo = builder.nexus_file 
 
@@ -746,12 +744,12 @@ class Test_Parser < Test::Unit::TestCase
     MATRIX
     fooo 01 more stuff here that should not be hit"
     
-    builder = NexusFile::Builder.new
-    lexer = NexusFile::Lexer.new(input)
+    builder = NexusParser::Builder.new
+    lexer = NexusParser::Lexer.new(input)
     
     (0..147).each{builder.stub_chr()}
     
-    NexusFile::Parser.new(lexer,builder).parse_chr_state_labels
+    NexusParser::Parser.new(lexer,builder).parse_chr_state_labels
 
     foo = builder.nexus_file 
     assert_equal 10, foo.characters.size
@@ -823,24 +821,24 @@ class Test_Parser < Test::Unit::TestCase
         
     # note the second last note note embedds parens in the value
    
-    builder = NexusFile::Builder.new
-    lexer = NexusFile::Lexer.new(input)
+    builder = NexusParser::Builder.new
+    lexer = NexusParser::Lexer.new(input)
     
     # stubs
     (0..9).each{builder.stub_chr()}
     (0..9).each{builder.stub_taxon()}
     builder.nexus_file.codings[3] = []
-    builder.nexus_file.codings[3][7] = NexusFile::NexusFile::Coding.new()
+    builder.nexus_file.codings[3][7] = NexusParser::NexusParser::Coding.new()
     builder.nexus_file.codings[8] = [] 
-    builder.nexus_file.codings[8][2] = NexusFile::NexusFile::Coding.new()
+    builder.nexus_file.codings[8][2] = NexusParser::NexusParser::Coding.new()
     builder.nexus_file.codings[1] = []
-    builder.nexus_file.codings[1][5] = NexusFile::NexusFile::Coding.new()
+    builder.nexus_file.codings[1][5] = NexusParser::NexusParser::Coding.new()
     builder.nexus_file.codings[6] = []    
-    builder.nexus_file.codings[6][9] = NexusFile::NexusFile::Coding.new()
+    builder.nexus_file.codings[6][9] = NexusParser::NexusParser::Coding.new()
     builder.nexus_file.codings[3] = []    
-    builder.nexus_file.codings[3][7] = NexusFile::NexusFile::Coding.new()
+    builder.nexus_file.codings[3][7] = NexusParser::NexusParser::Coding.new()
 
-    NexusFile::Parser.new(lexer,builder).parse_notes_blk
+    NexusParser::Parser.new(lexer,builder).parse_notes_blk
 
     foo = builder.nexus_file 
     
@@ -890,12 +888,12 @@ class Test_Parser < Test::Unit::TestCase
     
     # note the second last note note embeds parens in the value
    
-    builder = NexusFile::Builder.new
-    lexer = NexusFile::Lexer.new(input)
+    builder = NexusParser::Builder.new
+    lexer = NexusParser::Lexer.new(input)
     # stubs
     (0..9).each{builder.stub_chr()}
 
-    NexusFile::Parser.new(lexer,builder).parse_notes_blk
+    NexusParser::Parser.new(lexer,builder).parse_notes_blk
 
     foo = builder.nexus_file 
     
@@ -910,10 +908,9 @@ class Test_Parser < Test::Unit::TestCase
     assert_equal 'A62.006', foo.characters[5].notes[0].note
     assert_equal 'A62.007', foo.characters[6].notes[0].note
     assert_equal 'A62.008', foo.characters[7].notes[0].note
-    assert_equal NexusFile::NexusFile::Character, foo.characters[7].class
+    assert_equal NexusParser::NexusParser::Character, foo.characters[7].class
     assert_equal 1, foo.characters[7].notes.size
   end
-
 
   def test_parse_trees_block
   end

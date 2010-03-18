@@ -1,6 +1,6 @@
 
 
-class NexusFile::Lexer
+class NexusParser::Lexer
 
   def initialize(input)
     @input = input
@@ -21,7 +21,7 @@ class NexusFile::Lexer
     token = read_next_token(token_class)
     @next_token = nil
     if token.class != token_class
-        raise(NexusFile::ParseError,"expected #{token_class.to_s} but received #{token.class.to_s} at #{@input[0..10]}...", caller)
+        raise(NexusParser::ParseError,"expected #{token_class.to_s} but received #{token.class.to_s} at #{@input[0..10]}...", caller)
     else
         return token
     end
@@ -38,13 +38,13 @@ class NexusFile::Lexer
         return @next_token
       else
         # now check all the tokens for a match
-        NexusFile::Tokens.nexus_file_token_list.each {|t|
+        NexusParser::Tokens.nexus_file_token_list.each {|t|
           return @next_token if match(t)
         }
       end
          # no match, either end of string or lex-error
          if @input != ''
-             raise( NexusFile::ParseError, "Lex Error, unknown token at #{@input[0..10]}...", caller)
+             raise( NexusParser::ParseError, "Lex Error, unknown token at #{@input[0..10]}...", caller)
          else
             return nil
       end

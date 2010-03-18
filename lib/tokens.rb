@@ -1,4 +1,4 @@
-module NexusFile::Tokens
+module NexusParser::Tokens
 
   class Token 
     # this allows access the the class attribute regexp, without using a class variable
@@ -220,48 +220,48 @@ module NexusFile::Tokens
     end
   end
 
-  # NexusFile::Tokens::NexusComment
+  # NexusParser::Tokens::NexusComment
 
   # this list also defines priority, i.e. if tokens have overlap (which they shouldn't!!) then the earlier indexed token will match first
   def self.nexus_file_token_list
-    [ NexusFile::Tokens::NexusStart,
-      NexusFile::Tokens::BeginBlk,
-      NexusFile::Tokens::EndBlk,
-      NexusFile::Tokens::AuthorsBlk,
-      NexusFile::Tokens::SetsBlk,
-      NexusFile::Tokens::MqCharModelsBlk,
-      NexusFile::Tokens::AssumptionsBlk,
-      NexusFile::Tokens::CodonsBlk,
-      NexusFile::Tokens::MesquiteBlk,
-      NexusFile::Tokens::TreesBlk,
-      NexusFile::Tokens::LabelsBlk,
-      NexusFile::Tokens::TaxaBlk,
-      NexusFile::Tokens::NotesBlk,
-      NexusFile::Tokens::Title, 
-      NexusFile::Tokens::Taxlabels,
-      NexusFile::Tokens::Dimensions,
-      NexusFile::Tokens::FileLbl,
-      NexusFile::Tokens::Format,
-      NexusFile::Tokens::Equals,
-      NexusFile::Tokens::ValuePair,  # this has bad overlap with Label and likely IDs (need to kill the latter, its a lesser Label)
-      NexusFile::Tokens::CharStateLabels,
-      NexusFile::Tokens::ChrsBlk,
-      NexusFile::Tokens::Number,
-      NexusFile::Tokens::Matrix,
-      NexusFile::Tokens::SemiColon,
-      NexusFile::Tokens::MesquiteIDs,
-      NexusFile::Tokens::MesquiteBlockID,
-      NexusFile::Tokens::BlkEnd,
-      NexusFile::Tokens::Colon,
-      NexusFile::Tokens::BckSlash,
-      NexusFile::Tokens::Comma,
-      NexusFile::Tokens::LParen,
-      NexusFile::Tokens::RParen,
-      NexusFile::Tokens::LBracket,
-      NexusFile::Tokens::RBracket,
-      NexusFile::Tokens::Label, # must be before RowVec 
-      NexusFile::Tokens::RowVec,
-      NexusFile::Tokens::ID # need to trash this
+    [ NexusParser::Tokens::NexusStart,
+      NexusParser::Tokens::BeginBlk,
+      NexusParser::Tokens::EndBlk,
+      NexusParser::Tokens::AuthorsBlk,
+      NexusParser::Tokens::SetsBlk,
+      NexusParser::Tokens::MqCharModelsBlk,
+      NexusParser::Tokens::AssumptionsBlk,
+      NexusParser::Tokens::CodonsBlk,
+      NexusParser::Tokens::MesquiteBlk,
+      NexusParser::Tokens::TreesBlk,
+      NexusParser::Tokens::LabelsBlk,
+      NexusParser::Tokens::TaxaBlk,
+      NexusParser::Tokens::NotesBlk,
+      NexusParser::Tokens::Title, 
+      NexusParser::Tokens::Taxlabels,
+      NexusParser::Tokens::Dimensions,
+      NexusParser::Tokens::FileLbl,
+      NexusParser::Tokens::Format,
+      NexusParser::Tokens::Equals,
+      NexusParser::Tokens::ValuePair,  # this has bad overlap with Label and likely IDs (need to kill the latter, its a lesser Label)
+      NexusParser::Tokens::CharStateLabels,
+      NexusParser::Tokens::ChrsBlk,
+      NexusParser::Tokens::Number,
+      NexusParser::Tokens::Matrix,
+      NexusParser::Tokens::SemiColon,
+      NexusParser::Tokens::MesquiteIDs,
+      NexusParser::Tokens::MesquiteBlockID,
+      NexusParser::Tokens::BlkEnd,
+      NexusParser::Tokens::Colon,
+      NexusParser::Tokens::BckSlash,
+      NexusParser::Tokens::Comma,
+      NexusParser::Tokens::LParen,
+      NexusParser::Tokens::RParen,
+      NexusParser::Tokens::LBracket,
+      NexusParser::Tokens::RBracket,
+      NexusParser::Tokens::Label, # must be before RowVec 
+      NexusParser::Tokens::RowVec,
+      NexusParser::Tokens::ID # need to trash this
     ]   
   end
   

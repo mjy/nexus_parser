@@ -7,13 +7,13 @@
 # outstanding issues:
 ## need to resolve Tokens Labels, ValuePair, IDs
 
-module NexusFile
+module NexusParser
 
   require File.expand_path(File.join(File.dirname(__FILE__), 'tokens'))
   require File.expand_path(File.join(File.dirname(__FILE__), 'parser'))
   require File.expand_path(File.join(File.dirname(__FILE__), 'lexer'))
  
-class NexusFile 
+class NexusParser 
   
   attr_accessor :taxa, :characters, :sets, :codings, :vars, :notes
 
@@ -117,20 +117,20 @@ class NexusFile
 end
 
 
-# constructs the NexusFile
+# constructs the NexusParser
 class Builder
 
   def initialize
-    @nf = NexusFile.new 
+    @nf = NexusParser.new 
   end
 
   def stub_taxon
-    @nf.taxa.push(NexusFile::Taxon.new) 
+    @nf.taxa.push(NexusParser::Taxon.new) 
     return @nf.taxa.size
   end
 
   def stub_chr
-    @nf.characters.push(NexusFile::Character.new)
+    @nf.characters.push(NexusParser::Character.new)
     return @nf.characters.size
   end
 
@@ -138,7 +138,7 @@ class Builder
 
     @nf.characters.each_with_index do |c, i|
       @nf.codings[taxon_index.to_i] = [] if !@nf.codings[taxon_index.to_i]
-      @nf.codings[taxon_index.to_i][i] = NexusFile::Coding.new(:states => rowvector[i])
+      @nf.codings[taxon_index.to_i][i] = NexusParser::Coding.new(:states => rowvector[i])
     
       # !! we must update states for a given character if the state isn't found (not all states are referenced in description !! 
 
@@ -183,7 +183,7 @@ class Builder
     
     # need to create the characters
     
-    raise(NexusFile::ParseError, "Can't update character of index #{@index}, it doesn't exist! This is a problem parsing the character state labels. Check the indices. It may be for this character \"#{@opt[:name]}\".") if !@nf.characters[@index]
+    raise(NexusParser::ParseError, "Can't update character of index #{@index}, it doesn't exist! This is a problem parsing the character state labels. Check the indices. It may be for this character \"#{@opt[:name]}\".") if !@nf.characters[@index]
 
     (@nf.characters[@index].name = @opt[:name]) if @opt[:name]
   
@@ -223,28 +223,28 @@ class Builder
     # Why does mesquite differentiate b/w footnotes and annotations?!, apparently same data structure?
     when 'TEXT' # a footnote 
       if @opt[:file]
-       @nf.notes << NexusFile::Note.new(@opt)
+       @nf.notes << NexusParser::Note.new(@opt)
         
       elsif  @opt[:taxon] && @opt[:character] # its a cell, parse this case         
         @nf.codings[@opt[:taxon].to_i - 1][@opt[:character].to_i - 1].notes = [] if !@nf.codings[@opt[:taxon].to_i - 1][@opt[:character].to_i - 1].notes
-        @nf.codings[@opt[:taxon].to_i - 1][@opt[:character].to_i - 1].notes << NexusFile::Note.new(@opt)
+        @nf.codings[@opt[:taxon].to_i - 1][@opt[:character].to_i - 1].notes << NexusParser::Note.new(@opt)
 
       elsif @opt[:taxon] && !@opt[:character]
-        @nf.taxa[@opt[:taxon].to_i - 1].notes << NexusFile::Note.new(@opt)
+        @nf.taxa[@opt[:taxon].to_i - 1].notes << NexusParser::Note.new(@opt)
 
       elsif @opt[:character] && !@opt[:taxon]
         
-        @nf.characters[@opt[:character].to_i - 1].notes << NexusFile::Note.new(@opt)
+        @nf.characters[@opt[:character].to_i - 1].notes << NexusParser::Note.new(@opt)
       end
 
     when 'AN' # an annotation, rather than a footnote, same dif
       if @opt[:t] && @opt[:c]
         @nf.codings[@opt[:t].to_i - 1][@opt[:c].to_i - 1].notes = [] if !@nf.codings[@opt[:t].to_i - 1][@opt[:c].to_i - 1].notes
-        @nf.codings[@opt[:t].to_i - 1][@opt[:c].to_i - 1].notes << NexusFile::Note.new(@opt)
+        @nf.codings[@opt[:t].to_i - 1][@opt[:c].to_i - 1].notes << NexusParser::Note.new(@opt)
       elsif @opt[:t]
-        @nf.taxa[@opt[:t].to_i - 1].notes << NexusFile::Note.new(@opt)
+        @nf.taxa[@opt[:t].to_i - 1].notes << NexusParser::Note.new(@opt)
       elsif @opt[:c]
-        @nf.characters[@opt[:c].to_i - 1].notes << NexusFile::Note.new(@opt)
+        @nf.characters[@opt[:c].to_i - 1].notes << NexusParser::Note.new(@opt)
       end
     end
     
@@ -256,7 +256,7 @@ class Builder
 
 end # end file
 
-  # NexusFile::ParseError
+  # NexusParser::ParseError
   class ParseError < StandardError
   end
 
@@ -267,15 +267,14 @@ end # end module
 def parse_nexus_file(input)
   @input = input
   @input.gsub!(/\[[^\]]*\]/,'')  # strip out all comments BEFORE we parse the file
-    
   # quickly peek at the input, does this look like a Nexus file? 
   if !(@input =~ /\#Nexus/i) || !(@input =~ /Begin/i) || !(@input =~ /Matrix/i) || !(@input =~ /end\;/i)
-    raise(NexusFile::ParseError, "File is missing at least some required headers, check formatting.", caller)
+    raise(NexusParser::ParseError, "File is missing at least some required headers, check formatting.", caller)
   end
 
-  builder = NexusFile::Builder.new
-  lexer = NexusFile::Lexer.new(@input)
-  NexusFile::Parser.new(lexer, builder).parse_file
+  builder = NexusParser::Builder.new
+  lexer = NexusParser::Lexer.new(@input)
+  NexusParser::Parser.new(lexer, builder).parse_file
   
   return builder.nexus_file  
 end

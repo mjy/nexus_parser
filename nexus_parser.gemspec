@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{nexus_parser}
-  s.version = "1.0.0"
+  s.version = "1.1.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["mjy"]
-  s.date = %q{2010-03-17}
+  s.date = %q{2010-03-18}
   s.description = %q{A full featured and extensible Nexus file parser in Ruby. }
   s.email = %q{diapriid@gmail.com}
   s.extra_rdoc_files = [
@@ -29,9 +29,10 @@ Gem::Specification.new do |s|
      "init.rb",
      "install.rb",
      "lib/lexer.rb",
-     "lib/nexus_file.rb",
+     "lib/nexus_parser.rb",
      "lib/parser.rb",
      "lib/tokens.rb",
+     "nexus_parser.gemspec",
      "tasks/nexus_parser_tasks.rake",
      "test/MX_test_03.nex",
      "test/test.nex",
