@@ -84,7 +84,11 @@ class NexusParser::Parser
     # need to not ignore to test against
     parse_dimensions if @lexer.peek(NexusParser::Tokens::Dimensions)
 
+    inf = 0
     while true
+      inf += 1
+      raise (ParserError,"Either you have a gazillion taxa or more likely the parser is caught in an infinite loop trying to parser taxon labels. Check for double single quotes in this block.") if inf > 100000
+    
       if @lexer.peek(NexusParser::Tokens::EndBlk)
         @lexer.pop(NexusParser::Tokens::EndBlk)
         break
@@ -113,7 +117,12 @@ class NexusParser::Parser
   end
 
   def parse_characters_blk 
+    
+    inf = 0 
     while true
+      inf += 1
+      raise (ParserError,"Either you have a gazillion characters or more likely the parser is caught in an infinite loop trying to parser character data. Check for double single quotes in this block.") if inf > 100000
+
       if @lexer.peek(NexusParser::Tokens::EndBlk) # we're at the end of the block, exit after geting rid of the semi-colon
         break 
       else
@@ -171,8 +180,12 @@ class NexusParser::Parser
 
   def parse_chr_state_labels
     @lexer.pop(NexusParser::Tokens::CharStateLabels)
-  
+ 
+    inf = 0 
     while true
+      inf += 1
+      raise (ParserError,"Either you have a gazillion character state labels or more likely the parser is caught in an infinite loop while trying to parser character state labels. Check for double single quotes in this block.") if inf > 100000
+
       if @lexer.peek(NexusParser::Tokens::SemiColon)    
         break 
       else
@@ -232,10 +245,10 @@ class NexusParser::Parser
     # IMPORTANT - we don't parse the (CM <note>), we just strip the "(CM" ... ")" bit for now in NexusParser::Note
 
     @vars = {} 
-    inf = 0
+    inf = 0 # a crude iteration checker
     while true
       inf += 1
-      raise "Either you have a gazillion notes or more likely parser is caught in an infinite loop inside parse_notes_block" if inf > 100000
+      raise (ParserError,"Either you have a gazillion notes or more likely parser is caught in an infinite loop inside the Begin Notes block.  Check for double single quotes in this block.") if inf > 100000
       if @lexer.peek(NexusParser::Tokens::EndBlk)
         @lexer.pop(NexusParser::Tokens::EndBlk)
         @builder.add_note(@vars) # one still left to add
