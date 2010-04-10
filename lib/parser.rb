@@ -87,7 +87,7 @@ class NexusParser::Parser
     inf = 0
     while true
       inf += 1
-      raise (ParserError,"Either you have a gazillion taxa or more likely the parser is caught in an infinite loop trying to parser taxon labels. Check for double single quotes in this block.") if inf > 100000
+      raise(NexusParser::ParseError,"Either you have a gazillion taxa or more likely the parser is caught in an infinite loop trying to parser taxon labels. Check for double single quotes in this block.") if inf > 100000
     
       if @lexer.peek(NexusParser::Tokens::EndBlk)
         @lexer.pop(NexusParser::Tokens::EndBlk)
@@ -121,7 +121,7 @@ class NexusParser::Parser
     inf = 0 
     while true
       inf += 1
-      raise (ParserError,"Either you have a gazillion characters or more likely the parser is caught in an infinite loop trying to parser character data. Check for double single quotes in this block.") if inf > 100000
+      raise(NexusParser::ParseError,"Either you have a gazillion characters or more likely the parser is caught in an infinite loop trying to parser character data. Check for double single quotes in this block.") if inf > 100000
 
       if @lexer.peek(NexusParser::Tokens::EndBlk) # we're at the end of the block, exit after geting rid of the semi-colon
         break 
@@ -184,7 +184,7 @@ class NexusParser::Parser
     inf = 0 
     while true
       inf += 1
-      raise (ParserError,"Either you have a gazillion character state labels or more likely the parser is caught in an infinite loop while trying to parser character state labels. Check for double single quotes in this block.") if inf > 100000
+      raise(NexusParser::ParseError,"Either you have a gazillion character state labels or more likely the parser is caught in an infinite loop while trying to parser character state labels. Check for double single quotes in this block.") if inf > 100000
 
       if @lexer.peek(NexusParser::Tokens::SemiColon)    
         break 
@@ -213,7 +213,7 @@ class NexusParser::Parser
         
         opts.update({:index => (index - 1), :name => name})
        
-        raise(ParserError, "Error parsing character state labels for (or around) character #{index -1}.") if !opts[:name]
+        raise(NexusParser::ParseError, "Error parsing character state labels for (or around) character #{index -1}.") if !opts[:name]
         @builder.update_chr(opts)
       end     
 
@@ -248,7 +248,7 @@ class NexusParser::Parser
     inf = 0 # a crude iteration checker
     while true
       inf += 1
-      raise (ParserError,"Either you have a gazillion notes or more likely parser is caught in an infinite loop inside the Begin Notes block.  Check for double single quotes in this block.") if inf > 100000
+      raise(NexusParser::ParseError,"Either you have a gazillion notes or more likely parser is caught in an infinite loop inside the Begin Notes block.  Check for double single quotes in this block.") if inf > 100000
       if @lexer.peek(NexusParser::Tokens::EndBlk)
         @lexer.pop(NexusParser::Tokens::EndBlk)
         @builder.add_note(@vars) # one still left to add
