@@ -21,7 +21,7 @@ class NexusParser::Lexer
     token = read_next_token(token_class)
     @next_token = nil
     if token.class != token_class
-        raise(NexusParser::ParseError,"expected #{token_class.to_s} but received #{token.class.to_s} at #{@input[0..10]}...", caller)
+        raise(NexusParser::ParseError,"expected #{token_class.to_s} but received #{token.class.to_s} at #{@input[0..40]}...", caller)
     else
         return token
     end

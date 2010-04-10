@@ -1,6 +1,5 @@
 # NexusParser
 
-# version 0.3 by Matt Yoder 
 # uses the PhyloTree parser/lexer engine by Krishna Dole which in turn was based on
 # Thomas Mailund's <mailund@birc.dk> 'newick-1.0.5' Python library
 
