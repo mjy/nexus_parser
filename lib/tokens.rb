@@ -87,6 +87,10 @@ module NexusParser::Tokens
     @regexp = Regexp.new(/\A\s*(characters\s*;)\s*/i)
   end
 
+  class LinkLine < Token
+    @regexp = Regexp.new(/\A\s*(link.*\s*;)\s*\n*/i)
+  end
+
   # note we grab EOL and ; here 
   class ValuePair < Token
     @regexp = Regexp.new(/\A\s*([\w\d\_\&]+\s*=\s*((\'[^\']+\')|(\(.*\))|(\"[^\"]+\")|([^\s\n\t;]+)))[\s\n\t;]+/i) #  returns key => value hash for tokens like 'foo=bar' or foo = 'b a ar'
@@ -261,6 +265,7 @@ module NexusParser::Tokens
       NexusParser::Tokens::RBracket,
       NexusParser::Tokens::Label, # must be before RowVec 
       NexusParser::Tokens::RowVec,
+      NexusParser::Tokens::LinkLine,
       NexusParser::Tokens::ID # need to trash this
     ]   
   end

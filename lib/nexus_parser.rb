@@ -162,12 +162,10 @@ class Builder
   end
   
   def update_taxon(options = {})
-    
     @opt = {
       :name => ''
     }.merge!(options)
     return false if !@opt[:index] 
-    
     (@nf.taxa[@opt[:index]].name = @opt[:name]) if @opt[:name]
   end
 

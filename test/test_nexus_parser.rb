@@ -930,5 +930,14 @@ class Test_Parser < Test::Unit::TestCase
     assert true, foo
   end
 
+  def test_misc
+
+    assert nf = File.read(File.expand_path(File.join(File.dirname(__FILE__), '../test/Aptostichus.nex')) )
+    foo = parse_nexus_file(nf) 
+    assert true, foo
+  end
+
+
+
 end
 

@@ -127,7 +127,8 @@ class NexusParser::Parser
         break 
       else
         @lexer.pop(NexusParser::Tokens::Title) if @lexer.peek(NexusParser::Tokens::Title) # not used at present
-
+        @lexer.pop(NexusParser::Tokens::LinkLine) if @lexer.peek(NexusParser::Tokens::LinkLine) # trashing these for now
+        
         parse_dimensions if @lexer.peek(NexusParser::Tokens::Dimensions)
         parse_format if @lexer.peek(NexusParser::Tokens::Format) 
         
@@ -136,6 +137,7 @@ class NexusParser::Parser
         parse_matrix if @lexer.peek(NexusParser::Tokens::Matrix) 
     
         # handle "\s*OPTIONS MSTAXA = UNCERTAIN;\s\n" within a characters block (sticks in an infinite loop right now)
+
 
         @lexer.pop(NexusParser::Tokens::MesquiteIDs) if @lexer.peek(NexusParser::Tokens::MesquiteIDs) # trashing these for now
         @lexer.pop(NexusParser::Tokens::MesquiteBlockID) if @lexer.peek(NexusParser::Tokens::MesquiteBlockID) # trashing these for now
