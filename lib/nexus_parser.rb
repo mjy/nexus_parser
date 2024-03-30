@@ -8,12 +8,12 @@
 
 module NexusParser
 
-  require File.expand_path(File.join(File.dirname(__FILE__), 'tokens'))
-  require File.expand_path(File.join(File.dirname(__FILE__), 'parser'))
-  require File.expand_path(File.join(File.dirname(__FILE__), 'lexer'))
- 
-class NexusParser 
-  
+  require File.expand_path(File.join(File.dirname(__FILE__), 'nexus_parser', 'tokens'))
+  require File.expand_path(File.join(File.dirname(__FILE__), 'nexus_parser', 'parser'))
+  require File.expand_path(File.join(File.dirname(__FILE__), 'nexus_parser', 'lexer'))
+
+class NexusParser
+
   attr_accessor :taxa, :characters, :sets, :codings, :vars, :notes
 
   def initialize
@@ -39,7 +39,7 @@ class NexusParser
         :name => ''
       }.merge!(options)
       return false if !@opt[:label]
-      
+
       @states.update(@opt[:label] => ChrState.new(@opt[:name]))
     end
 
@@ -70,12 +70,12 @@ class NexusParser
     end
   end
 
-  class Coding 
-    # unfortunately we need this for notes  
+  class Coding
+    # unfortunately we need this for notes
     attr_accessor :states, :notes
     def initialize(options = {})
       @states = options[:states]
-      @notes = [] 
+      @notes = []
     end
 
     def states
@@ -98,7 +98,7 @@ class NexusParser
       else
         n = 'No text recovered, possible parsing error.'
       end
-      
+
       # THIS IS A HACK for handling the TF = (CM <note>) format, I assume there will be other params in the future beyond CM, at that point move processing to the parser
       if n[0..2] =~ /\A\s*\(\s*CM\s*/i
         n.strip!
@@ -107,7 +107,7 @@ class NexusParser
         n = n[2..-1] if n[0..1].downcase == "cm" # strip CM
         n.strip!
         n = n[1..-2] if n[0..0] == "'" # get rid of quote marks
-        n = n[1..-2] if n[0..0] == '"' 
+        n = n[1..-2] if n[0..0] == '"'
       end
       n.strip
     end
@@ -120,11 +120,11 @@ end
 class Builder
 
   def initialize
-    @nf = NexusParser.new 
+    @nf = NexusParser.new
   end
 
   def stub_taxon
-    @nf.taxa.push(NexusParser::Taxon.new) 
+    @nf.taxa.push(NexusParser::Taxon.new)
     return @nf.taxa.size
   end
 
@@ -138,11 +138,11 @@ class Builder
     @nf.characters.each_with_index do |c, i|
       @nf.codings[taxon_index.to_i] = [] if !@nf.codings[taxon_index.to_i]
       @nf.codings[taxon_index.to_i][i] = NexusParser::Coding.new(:states => rowvector[i])
-    
-      # !! we must update states for a given character if the state isn't found (not all states are referenced in description !! 
+
+      # !! we must update states for a given character if the state isn't found (not all states are referenced in description !!
 
       existing_states = @nf.characters[i].state_labels
-      
+
       new_states = rowvector[i].class == Array ? rowvector[i].collect{|s| s.to_s} :  [rowvector[i].to_s]
       new_states.delete("?") # we don't add this to the db
       new_states = new_states - existing_states
@@ -160,12 +160,12 @@ class Builder
     end
     @nf.vars.update(hash)
   end
-  
+
   def update_taxon(options = {})
     @opt = {
       :name => ''
     }.merge!(options)
-    return false if !@opt[:index] 
+    return false if !@opt[:index]
     (@nf.taxa[@opt[:index]].name = @opt[:name]) if @opt[:name]
   end
 
@@ -177,29 +177,29 @@ class Builder
     return false if !@opt[:index]
 
     @index = @opt[:index].to_i
-    
+
     # need to create the characters
-    
+
     raise(NexusParser::ParseError, "Can't update character of index #{@index}, it doesn't exist! This is a problem parsing the character state labels. Check the indices. It may be for this character \"#{@opt[:name]}\".") if !@nf.characters[@index]
 
     (@nf.characters[@index].name = @opt[:name]) if @opt[:name]
-  
+
     @opt.delete(:index)
     @opt.delete(:name)
-   
+
     # the rest have states
     @opt.keys.each do |k|
-      
+
       if (@nf.characters[@index].states != {}) && @nf.characters[@index].states[k] # state exists
-        
+
         ## !! ONLY HANDLES NAME, UPDATE TO HANDLE notes etc. when we get them ##
         update_state(@index, :index => k, :name => @opt[k])
-        
+
       else # doesn't, create it
         @nf.characters[@index].add_state(:label => k.to_s, :name => @opt[k])
       end
     end
-    
+
   end
 
   def update_state(chr_index, options = {})
@@ -218,11 +218,11 @@ class Builder
     case @opt[:type]
 
     # Why does mesquite differentiate b/w footnotes and annotations?!, apparently same data structure?
-    when 'TEXT' # a footnote 
+    when 'TEXT' # a footnote
       if @opt[:file]
        @nf.notes << NexusParser::Note.new(@opt)
-        
-      elsif  @opt[:taxon] && @opt[:character] # its a cell, parse this case         
+
+      elsif  @opt[:taxon] && @opt[:character] # its a cell, parse this case
         @nf.codings[@opt[:taxon].to_i - 1][@opt[:character].to_i - 1].notes = [] if !@nf.codings[@opt[:taxon].to_i - 1][@opt[:character].to_i - 1].notes
         @nf.codings[@opt[:taxon].to_i - 1][@opt[:character].to_i - 1].notes << NexusParser::Note.new(@opt)
 
@@ -230,7 +230,7 @@ class Builder
         @nf.taxa[@opt[:taxon].to_i - 1].notes << NexusParser::Note.new(@opt)
 
       elsif @opt[:character] && !@opt[:taxon]
-        
+
         @nf.characters[@opt[:character].to_i - 1].notes << NexusParser::Note.new(@opt)
       end
 
@@ -244,7 +244,7 @@ class Builder
         @nf.characters[@opt[:c].to_i - 1].notes << NexusParser::Note.new(@opt)
       end
     end
-    
+
   end
 
   def nexus_file
@@ -264,7 +264,7 @@ end # end module
 def parse_nexus_file(input)
   @input = input
   @input.gsub!(/\[[^\]]*\]/,'')  # strip out all comments BEFORE we parse the file
-  # quickly peek at the input, does this look like a Nexus file? 
+  # quickly peek at the input, does this look like a Nexus file?
   if !(@input =~ /\#Nexus/i) || !(@input =~ /Begin/i) || !(@input =~ /Matrix/i) || !(@input =~ /end\;/i)
     raise(NexusParser::ParseError, "File is missing at least some required headers, check formatting.", caller)
   end
@@ -272,7 +272,7 @@ def parse_nexus_file(input)
   builder = NexusParser::Builder.new
   lexer = NexusParser::Lexer.new(@input)
   NexusParser::Parser.new(lexer, builder).parse_file
-  
-  return builder.nexus_file  
+
+  return builder.nexus_file
 end
 
