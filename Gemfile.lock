@@ -6,7 +6,12 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
+    psych (5.1.2)
+      stringio
     rake (13.1.0)
+    rdoc (6.6.3.1)
+      psych (>= 4.0.0)
+    stringio (3.1.0)
 
 PLATFORMS
   ruby
@@ -15,6 +20,7 @@ PLATFORMS
 DEPENDENCIES
   nexus_parser!
   rake (~> 13.0)
+  rdoc (~> 6.6.2)
 
 BUNDLED WITH
    2.5.3
