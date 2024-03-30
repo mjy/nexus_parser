@@ -618,12 +618,12 @@ class Test_Parser < Test::Unit::TestCase
 
   def test_characters_block_from_file
     foo = parse_nexus_file(@nf)
-    assert 10, foo.characters.size
+    assert_equal 10, foo.characters.size
   end
 
   def test_codings
     foo = parse_nexus_file(@nf)
-    assert 100, foo.codings.size  # two multistates count in single cells
+    assert_equal 100, foo.codings.size  # two multistates count in single cells
   end
 
   def test_parse_dimensions
@@ -931,7 +931,7 @@ class Test_Parser < Test::Unit::TestCase
   end
 
   def test_misc
-
+    omit("test file doesn't currently exist")
     assert nf = File.read(File.expand_path(File.join(File.dirname(__FILE__), '../test/Aptostichus.nex')) )
     foo = parse_nexus_file(nf)
     assert true, foo
