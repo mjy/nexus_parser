@@ -1,22 +1,8 @@
+# frozen_string_literal: true
+
+require "bundler/gem_tasks"
 require 'rubygems'
 require 'rake'
-
-begin
-  require 'jeweler'
-  Jeweler::Tasks.new do |gem|
-    gem.name = "nexus_parser"
-    gem.summary = %Q{A Nexus file format (phylogenetic inference) parser in Ruby.}
-    gem.description = %Q{A full featured and extensible Nexus file parser in Ruby. }
-    gem.email = "diapriid@gmail.com"
-    gem.homepage = "http://github.com/mjy/nexus_parser"
-    gem.authors = ["mjy"]
-    # gem.add_development_dependency "thoughtbot-shoulda", ">= 0"
-    # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
-  end
-  Jeweler::GemcutterTasks.new
-rescue LoadError
-  puts "Jeweler (or a dependency) not available. Install it with: gem install jeweler"
-end
 
 require 'rake/testtask'
 Rake::TestTask.new(:test) do |test|
