@@ -30,7 +30,7 @@ task :default => :test
 
 require 'rdoc/task'
 Rake::RDocTask.new do |rdoc|
-  version = File.exist?('VERSION') ? File.read('VERSION') : ""
+  version = NexusParser::VERSION
 
   rdoc.rdoc_dir = 'rdoc'
   rdoc.title = "nexus_parser #{version}"
