@@ -18,4 +18,13 @@ coverage
 rdoc
 pkg
 
+/.bundle/
+/.yardoc
+/_yardoc/
+/coverage/
+/doc/
+/pkg/
+/spec/reports/
+/tmp/
+
 ## PROJECT::SPECIFIC
