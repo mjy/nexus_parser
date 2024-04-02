@@ -1,9 +1,9 @@
 module NexusParser::Tokens
 
-  class Token 
+  class Token
     # this allows access the the class attribute regexp, without using a class variable
     class << self; attr_reader :regexp; end
-    attr_reader :value    
+    attr_reader :value
     def initialize(str)
       @value = str
     end
@@ -11,7 +11,7 @@ module NexusParser::Tokens
 
   # in ruby, \A is needed if you want to only match at the beginning of the string, we need this everywhere, as we're
   # moving along popping off
- 
+
   class NexusStart < Token
     @regexp = Regexp.new(/\A.*(\#nexus)\s*/i)
   end
@@ -21,7 +21,7 @@ module NexusParser::Tokens
   #   @regexp = Regexp.new(/\A\s*(\[[^\]]*\])\s*/i)
   #   def initialize(str)
   #     str = str[1..-2] # strip the []
-  #     str.strip!   
+  #     str.strip!
   #    @value = str
   #  end
   # end
@@ -34,17 +34,17 @@ module NexusParser::Tokens
     @regexp = Regexp.new(/\A\s*([\s\n]*End[\s\n]*;[\s\n]*)/i)
   end
 
-  # label 
+  # label
   class AuthorsBlk < Token
-    @regexp = Regexp.new(/\A\s*(Authors;.*?END;)\s*/im) 
+    @regexp = Regexp.new(/\A\s*(Authors;.*?END;)\s*/im)
   end
 
-  # label 
+  # label
   class TaxaBlk < Token
     @regexp = Regexp.new(/\A\s*(\s*Taxa\s*;)\s*/i)
   end
 
-  # label 
+  # label
   class NotesBlk < Token
     @regexp = Regexp.new(/\A\s*(\s*Notes\s*;)\s*/i)
   end
@@ -66,9 +66,9 @@ module NexusParser::Tokens
     @regexp = Regexp.new(/\A\s*(format)\s*/i)
   end
 
-  # label 
+  # label
   class Taxlabels < Token
-     @regexp = Regexp.new(/\A\s*(\s*taxlabels\s*)\s*/i)
+    @regexp = Regexp.new(/\A\s*(\s*taxlabels\s*)\s*/i)
   end
 
   # same as ID
@@ -77,8 +77,8 @@ module NexusParser::Tokens
     def initialize(str)
       str.strip!
       str = str[1..-2] if str[0..0] == "'" # get rid of quote marks
-      str = str[1..-2] if str[0..0] == '"' 
-      str.strip! 
+      str = str[1..-2] if str[0..0] == '"'
+      str.strip!
       @value = str
     end
   end
@@ -91,15 +91,15 @@ module NexusParser::Tokens
     @regexp = Regexp.new(/\A\s*(link.*\s*;)\s*\n*/i)
   end
 
-  # note we grab EOL and ; here 
+  # note we grab EOL and ; here
   class ValuePair < Token
     @regexp = Regexp.new(/\A\s*([\w\d\_\&]+\s*=\s*((\'[^\']+\')|(\(.*\))|(\"[^\"]+\")|([^\s\n\t;]+)))[\s\n\t;]+/i) #  returns key => value hash for tokens like 'foo=bar' or foo = 'b a ar'
     def initialize(str)
       str.strip!
       str = str.split(/=/)
       str[1].strip!
-      str[1] = str[1][1..-2] if str[1][0..0] == "'" 
-      str[1] = str[1][1..-2] if str[1][0..0] ==  "\"" 
+      str[1] = str[1][1..-2] if str[1][0..0] == "'"
+      str[1] = str[1][1..-2] if str[1][0..0] ==  "\""
       @value = {str[0].strip.downcase.to_sym => str[1].strip}
     end
   end
@@ -110,10 +110,10 @@ module NexusParser::Tokens
 
   class RowVec < Token
     @regexp = Regexp.new(/\A\s*(.+)\s*\n/i)
-     def initialize(str)
-       # meh! Ruby is simpler to read than Perl?
-       # handles both () and {} style multistates
-       s = str.split(/\(|\)|\}|\{/).collect{|s| s=~ /[\,|\s]/ ? s.split(/[\,|\s]/) : s}.inject([]){|sum, x| x.class == Array ? sum << x.delete_if {|y| y == "" } : sum + x.strip.split(//)}
+    def initialize(str)
+      # meh! Ruby is simpler to read than Perl?
+      # handles both () and {} style multistates
+      s = str.split(/\(|\)|\}|\{/).collect{|s| s=~ /[\,|\s]/ ? s.split(/[\,|\s]/) : s}.inject([]){|sum, x| x.class == Array ? sum << x.delete_if {|y| y == "" } : sum + x.strip.split(//)}
       @value = s
     end
   end
@@ -131,33 +131,33 @@ module NexusParser::Tokens
   end
 
   # unparsed blocks
-  
+
   class TreesBlk < Token
     @regexp = Regexp.new(/\A\s*(trees;.*?END;)\s*/im) # note the multi-line /m
   end
 
   class SetsBlk < Token
-    @regexp = Regexp.new(/\A\s*(sets;.*?END;)\s*/im) 
+    @regexp = Regexp.new(/\A\s*(sets;.*?END;)\s*/im)
   end
 
   class MqCharModelsBlk < Token
-    @regexp = Regexp.new(/\A\s*(MESQUITECHARMODELS;.*?END;)\s*/im) 
+    @regexp = Regexp.new(/\A\s*(MESQUITECHARMODELS;.*?END;)\s*/im)
   end
 
   class LabelsBlk < Token
-    @regexp = Regexp.new(/\A\s*(LABELS;.*?END;)\s*/im) 
+    @regexp = Regexp.new(/\A\s*(LABELS;.*?END;)\s*/im)
   end
 
   class AssumptionsBlk < Token
-    @regexp = Regexp.new(/\A\s*(ASSUMPTIONS;.*?END;)\s*/im) 
+    @regexp = Regexp.new(/\A\s*(ASSUMPTIONS;.*?END;)\s*/im)
   end
 
   class CodonsBlk < Token
-    @regexp = Regexp.new(/\A\s*(CODONS;.*?END;)\s*/im) 
+    @regexp = Regexp.new(/\A\s*(CODONS;.*?END;)\s*/im)
   end
 
   class MesquiteBlk < Token
-    @regexp = Regexp.new(/\A\s*(Mesquite;.*?END;)\s*/im) 
+    @regexp = Regexp.new(/\A\s*(Mesquite;.*?END;)\s*/im)
   end
 
   class BlkEnd < Token
@@ -173,13 +173,13 @@ module NexusParser::Tokens
   end
 
   class LParen < Token
-      @regexp = Regexp.new('\A\s*(\()\s*')
+    @regexp = Regexp.new('\A\s*(\()\s*')
   end
 
   class RParen < Token
     @regexp = Regexp.new('\A\s*(\))\s*')
   end
- 
+
   class Equals < Token
     @regexp = Regexp.new('\A\s*(=)\s*')
   end
@@ -192,7 +192,7 @@ module NexusParser::Tokens
   class ID < Token
     @regexp = Regexp.new('\A\s*((\'[^\']+\')|(\w[^,:(); \t\n]*|_)+)\s*')
     def initialize(str)
-      str.strip! 
+      str.strip!
       str = str[1..-2] if str[0..0] == "'" # get rid of quote marks
       @value = str
     end
@@ -241,7 +241,7 @@ module NexusParser::Tokens
       NexusParser::Tokens::LabelsBlk,
       NexusParser::Tokens::TaxaBlk,
       NexusParser::Tokens::NotesBlk,
-      NexusParser::Tokens::Title, 
+      NexusParser::Tokens::Title,
       NexusParser::Tokens::Taxlabels,
       NexusParser::Tokens::Dimensions,
       NexusParser::Tokens::FileLbl,
@@ -263,12 +263,12 @@ module NexusParser::Tokens
       NexusParser::Tokens::RParen,
       NexusParser::Tokens::LBracket,
       NexusParser::Tokens::RBracket,
-      NexusParser::Tokens::Label, # must be before RowVec 
+      NexusParser::Tokens::Label, # must be before RowVec
       NexusParser::Tokens::RowVec,
       NexusParser::Tokens::LinkLine,
       NexusParser::Tokens::ID # need to trash this
-    ]   
+    ]
   end
-  
+
 end
 

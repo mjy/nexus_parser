@@ -167,27 +167,27 @@ class Test_Lexer < Test::Unit::TestCase
   end
 
   def test_label
-      lexer = NexusParser::Lexer.new(' \'foo\' bar, blorf; "stuff things" stuff \'and foo\' 23434 ""asdf""  \'Foo_And_Stuff\' ')
-      assert foo = lexer.pop(NexusParser::Tokens::Label)
-      assert_equal "foo", foo.value
-      assert foo = lexer.pop(NexusParser::Tokens::Label)
-      assert_equal "bar", foo.value
-      assert lexer.pop(NexusParser::Tokens::Comma)
-      assert foo = lexer.pop(NexusParser::Tokens::Label)
-      assert_equal "blorf", foo.value
-      assert lexer.pop(NexusParser::Tokens::SemiColon)
-      assert foo = lexer.pop(NexusParser::Tokens::Label)
-      assert_equal "stuff things", foo.value
-      assert foo = lexer.pop(NexusParser::Tokens::Label)
-      assert_equal "stuff", foo.value
-      assert foo = lexer.pop(NexusParser::Tokens::Label)
-      assert_equal "and foo", foo.value
-      assert foo = lexer.pop(NexusParser::Tokens::Label)
-      assert_equal "23434", foo.value
-      assert foo = lexer.pop(NexusParser::Tokens::Label)
-      assert_equal '"asdf"', foo.value
-      assert foo = lexer.pop(NexusParser::Tokens::Label)
-      assert_equal 'Foo_And_Stuff', foo.value
+    lexer = NexusParser::Lexer.new(' \'foo\' bar, blorf; "stuff things" stuff \'and foo\' 23434 ""asdf""  \'Foo_And_Stuff\' ')
+    assert foo = lexer.pop(NexusParser::Tokens::Label)
+    assert_equal "foo", foo.value
+    assert foo = lexer.pop(NexusParser::Tokens::Label)
+    assert_equal "bar", foo.value
+    assert lexer.pop(NexusParser::Tokens::Comma)
+    assert foo = lexer.pop(NexusParser::Tokens::Label)
+    assert_equal "blorf", foo.value
+    assert lexer.pop(NexusParser::Tokens::SemiColon)
+    assert foo = lexer.pop(NexusParser::Tokens::Label)
+    assert_equal "stuff things", foo.value
+    assert foo = lexer.pop(NexusParser::Tokens::Label)
+    assert_equal "stuff", foo.value
+    assert foo = lexer.pop(NexusParser::Tokens::Label)
+    assert_equal "and foo", foo.value
+    assert foo = lexer.pop(NexusParser::Tokens::Label)
+    assert_equal "23434", foo.value
+    assert foo = lexer.pop(NexusParser::Tokens::Label)
+    assert_equal '"asdf"', foo.value
+    assert foo = lexer.pop(NexusParser::Tokens::Label)
+    assert_equal 'Foo_And_Stuff', foo.value
   end
 
   def test_odd_labels
@@ -342,7 +342,7 @@ class Test_Lexer < Test::Unit::TestCase
   end
 
   def test_TreesBlk
-  lexer = NexusParser::Lexer.new("BEGIN TREES;
+    lexer = NexusParser::Lexer.new("BEGIN TREES;
       Title Imported_trees;
       LINK Taxa = 'Scharff&Coddington_1997_Araneidae';
       TRANSLATE
@@ -407,10 +407,10 @@ class Test_Lexer < Test::Unit::TestCase
 
     BEGIN some other block;")
 
-      assert foo = lexer.pop(NexusParser::Tokens::LabelsBlk)
-      assert_equal 'LABELS', foo.value.slice(0,6)
-      assert_equal 'END;', foo.value.slice(-4,4)
-    end
+    assert foo = lexer.pop(NexusParser::Tokens::LabelsBlk)
+    assert_equal 'LABELS', foo.value.slice(0,6)
+    assert_equal 'END;', foo.value.slice(-4,4)
+  end
 
   def test_SetsBlk
     lexer = NexusParser::Lexer.new("
@@ -420,15 +420,15 @@ class Test_Lexer < Test::Unit::TestCase
       END;
     BEGIN some other block;")
 
-      assert foo = lexer.pop(NexusParser::Tokens::SetsBlk)
-      assert_equal 'SETS', foo.value.slice(0,4)
-      assert_equal 'END;', foo.value.slice(-4,4)
-    end
+    assert foo = lexer.pop(NexusParser::Tokens::SetsBlk)
+    assert_equal 'SETS', foo.value.slice(0,4)
+    assert_equal 'END;', foo.value.slice(-4,4)
+  end
 
-    def test_lexer_errors
-      lexer = NexusParser::Lexer.new("*&")
-      assert_raise(NexusParser::ParseError) {lexer.peek(NexusParser::Tokens::ID)}
-    end
+  def test_lexer_errors
+    lexer = NexusParser::Lexer.new("*&")
+    assert_raise(NexusParser::ParseError) {lexer.peek(NexusParser::Tokens::ID)}
+  end
 end
 
 
@@ -451,7 +451,7 @@ class Test_Parser < Test::Unit::TestCase
   end
 
   def test_parse_initializes
-     parse_nexus_file(@nf)
+    parse_nexus_file(@nf)
   end
 
   def test_parse_file
@@ -573,7 +573,7 @@ class Test_Parser < Test::Unit::TestCase
   end
 
   def test_characters_block_without_IDs_or_title
-   input=  "
+    input=  "
       DIMENSIONS  NCHAR=10;
       FORMAT DATATYPE = STANDARD GAP = - MISSING = ? SYMBOLS = \"  0 1 2 3 4 5 6 7 8 9 A\";
       CHARSTATELABELS
@@ -721,7 +721,7 @@ class Test_Parser < Test::Unit::TestCase
     builder = NexusParser::Builder.new
     lexer = NexusParser::Lexer.new(input)
 
-     (0..29).each{builder.stub_chr()}
+    (0..29).each{builder.stub_chr()}
 
     NexusParser::Parser.new(lexer,builder).parse_chr_state_labels
 
@@ -796,7 +796,7 @@ class Test_Parser < Test::Unit::TestCase
 
 
   def test_parse_notes_blk
-   input ="
+    input ="
       TEXT  TAXA = 'Scharff&Coddington_1997_Araneidae' TAXON = 2 TEXT = 'This is a footnote to taxon 2, Uloborus';
 
       TEXT   TAXON = 4 CHARACTER = 8 TEXT = This_is_a_footnote_to_a_cell.;
