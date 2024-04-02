@@ -1,6 +1,6 @@
 require 'test/unit'
 require 'rubygems'
-#require 'ruby-debug'
+require 'byebug'
 
 require File.expand_path(File.join(File.dirname(__FILE__), '../lib/nexus_parser'))
 
@@ -28,7 +28,6 @@ class Test_Regex < Test::Unit::TestCase
     @regexp = Regexp.new(/\s*(Begin\s*taxa\s*;)\s*/i)
     assert txt =~ @regexp
   end
-
 end
 
 
@@ -56,7 +55,6 @@ class Test_Lexer < Test::Unit::TestCase
     assert lexer2.pop(NexusParser::Tokens::RBracket)
     assert lexer2.pop(NexusParser::Tokens::LParen)
     assert lexer2.pop(NexusParser::Tokens::RParen)
-
 
     lexer3 = NexusParser::Lexer.new("[ foo ] Begin Characters; BLORF end; [] ()  some crud here")
     assert lexer3.pop(NexusParser::Tokens::LBracket)
@@ -623,7 +621,7 @@ class Test_Parser < Test::Unit::TestCase
 
   def test_codings
     foo = parse_nexus_file(@nf)
-    assert_equal 100, foo.codings.size  # two multistates count in single cells
+    assert_equal 100, foo.codings.flatten.size  # two multistates count in single cells
   end
 
   def test_parse_dimensions
@@ -936,8 +934,6 @@ class Test_Parser < Test::Unit::TestCase
     foo = parse_nexus_file(nf)
     assert true, foo
   end
-
-
 
 end
 
