@@ -57,5 +57,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake', '~> 13.0'
   spec.add_development_dependency 'rdoc', '~> 6.6.2'
   spec.add_development_dependency 'byebug', '~> 11.1'
+  spec.add_development_dependency 'test-unit'
 end
 
