@@ -928,8 +928,8 @@ class Test_Parser < Test::Unit::TestCase
     assert true, foo
   end
 
-  def test_misc
-    omit("test file doesn't currently exist")
+  def DONT_test_misc2
+    # omit("test file doesn't currently exist")
     assert nf = File.read(File.expand_path(File.join(File.dirname(__FILE__), '../test/Aptostichus.nex')) )
     foo = parse_nexus_file(nf)
     assert true, foo

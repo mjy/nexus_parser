@@ -5,7 +5,7 @@ require_relative "lib/nexus_parser/version"
 Gem::Specification.new do |spec|
   spec.name = "nexus_parser"
   spec.version = NexusParser::VERSION
-  spec.authors = ["mjy"]
+  spec.authors = ["mjy", "kleintom"]
   spec.email = ["diapriid@gmail.com"]
 
   spec.summary = "A Nexus file format (phylogenetic inference) parser in Ruby."

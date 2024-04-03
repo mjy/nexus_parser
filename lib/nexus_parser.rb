@@ -26,7 +26,9 @@ class NexusParser
   end
 
   class Character
-    attr_accessor :name, :states, :notes
+    attr_accessor  :states, :notes
+    attr_writer :name
+
     def initialize
       @name = nil
       @states = {}
@@ -72,8 +74,9 @@ class NexusParser
 
   class Coding
     # unfortunately we need this for notes
-    attr_accessor :states, :notes
-    
+    attr_accessor :notes
+    attr_writer :state 
+
     def initialize(options = {})
       @states = options[:states]
       @notes = []
