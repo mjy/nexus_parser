@@ -49,7 +49,7 @@ class NexusParser
     end
 
     def name
-      ((@name == "") || (@name == nil)) ? "Undefined" : @name
+      ((@name == "") || (@name.nil?)) ? "Undefined" : @name
     end
   end
 
@@ -73,14 +73,16 @@ class NexusParser
   class Coding
     # unfortunately we need this for notes
     attr_accessor :states, :notes
+    
     def initialize(options = {})
       @states = options[:states]
       @notes = []
     end
 
     def states
-      @states.class == Array ? @states  :  [@states]
+      @states.class == Array ? @states : [@states]
     end
+    
   end
 
   class Note

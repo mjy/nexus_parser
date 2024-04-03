@@ -8,7 +8,7 @@ class NexusParser::Parser
 
   def parse_file
     # nf = @builder.new_nexus_file # create new local NexusParser instance, nf
-    blks = []
+    # blks = []
     @lexer.pop(NexusParser::Tokens::NexusStart)
      
     while @lexer.peek(NexusParser::Tokens::BeginBlk)
@@ -215,7 +215,7 @@ class NexusParser::Parser
         
         opts.update({:index => (index - 1), :name => name})
        
-        raise(NexusParser::ParseError, "Error parsing character state labels for (or around) character #{index -1}.") if !opts[:name]
+        raise(NexusParser::ParseError, "Error parsing character state labels for (or around) character #{index - 1}.") if !opts[:name]
         @builder.update_chr(opts)
       end     
 

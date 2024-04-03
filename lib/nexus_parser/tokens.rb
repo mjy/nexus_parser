@@ -31,7 +31,7 @@ module NexusParser::Tokens
   end
 
   class EndBlk < Token
-    @regexp = Regexp.new(/\A\s*([\s\n]*End[\s\n]*;[\s\n]*)/i)
+    @regexp = Regexp.new(/\A\s*([\s]*End[\s]*;[\s]*)/i)
   end
 
   # label
@@ -93,7 +93,7 @@ module NexusParser::Tokens
 
   # note we grab EOL and ; here
   class ValuePair < Token
-    @regexp = Regexp.new(/\A\s*([\w\d\_\&]+\s*=\s*((\'[^\']+\')|(\(.*\))|(\"[^\"]+\")|([^\s\n\t;]+)))[\s\n\t;]+/i) #  returns key => value hash for tokens like 'foo=bar' or foo = 'b a ar'
+    @regexp = Regexp.new(/\A\s*([\w]+\s*=\s*((\'[^\']+\')|(\(.*\))|(\"[^\"]+\")|([^\s;]+)))[\s;]+/i) #  returns key => value hash for tokens like 'foo=bar' or foo = 'b a ar'
     def initialize(str)
       str.strip!
       str = str.split(/=/)
@@ -161,7 +161,7 @@ module NexusParser::Tokens
   end
 
   class BlkEnd < Token
-    @regexp = Regexp.new(/\A[\s\n]*(END;)\s*/i)
+    @regexp = Regexp.new(/\A[\s]*(END;)\s*/i)
   end
 
   class LBracket < Token
