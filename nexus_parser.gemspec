@@ -17,16 +17,14 @@ Gem::Specification.new do |spec|
 
   spec.extra_rdoc_files = [
     "LICENSE",
-    "README",
-    "README.rdoc"
+    "README.md"
   ]
   spec.files = [
     ".document",
     ".gitignore",
     "LICENSE",
     "MIT-LICENSE",
-    "README",
-    "README.rdoc",
+    "README.md",
     "Rakefile",
     "install.rb",
     "lib/nexus_parser.rb",
