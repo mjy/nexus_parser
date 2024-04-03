@@ -23,7 +23,6 @@ Gem::Specification.new do |spec|
     ".document",
     ".gitignore",
     "LICENSE",
-    "MIT-LICENSE",
     "README.md",
     "Rakefile",
     "install.rb",
