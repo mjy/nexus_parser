@@ -31,12 +31,12 @@ module NexusParser::Tokens
   end
 
   class EndBlk < Token
-    @regexp = Regexp.new(/\A\s*([\s]*End[\s]*;[\s]*)/i)
+    @regexp = Regexp.new(/\A\s*([\s]*(end|endblock)[\s]*;[\s]*)/i)
   end
 
   # label
   class AuthorsBlk < Token
-    @regexp = Regexp.new(/\A\s*(Authors;.*?END;)\s*/im)
+    @regexp = Regexp.new(/\A\s*(Authors;.*?END;)\s*/im) # TODO: why not EndBlk use here
   end
 
   # label

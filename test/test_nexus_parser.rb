@@ -513,8 +513,6 @@ class Test_Parser < Test::Unit::TestCase
     assert_equal "Tetragnatha", foo.taxa[9].name
   end
 
-
-
   def test_parse_characters_blk
     input=  "
       TITLE  'Scharff&Coddington_1997_Araneidae';
@@ -589,7 +587,7 @@ class Test_Parser < Test::Unit::TestCase
       Tetragnatha            0?01011011
 
     ;
-    END;"
+    ENDBLOCK;"
 
     builder = NexusParser::Builder.new
     @lexer = NexusParser::Lexer.new(input)
