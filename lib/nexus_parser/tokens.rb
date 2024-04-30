@@ -66,6 +66,11 @@ module NexusParser::Tokens
     @regexp = Regexp.new(/\A\s*(format)\s*/i)
   end
 
+  # TODO: Handled, but ignored
+  class RespectCase < Token
+    @regexp = Regexp.new(/\A\s*(respectcase)\s*/i)
+  end
+
   # label
   class Taxlabels < Token
     @regexp = Regexp.new(/\A\s*(\s*taxlabels\s*)\s*/i)
@@ -246,6 +251,7 @@ module NexusParser::Tokens
       NexusParser::Tokens::Dimensions,
       NexusParser::Tokens::FileLbl,
       NexusParser::Tokens::Format,
+      NexusParser::Tokens::RespectCase,
       NexusParser::Tokens::Equals,
       NexusParser::Tokens::ValuePair,  # this has bad overlap with Label and likely IDs (need to kill the latter, its a lesser Label)
       NexusParser::Tokens::CharStateLabels,

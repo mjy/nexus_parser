@@ -151,8 +151,10 @@ class NexusParser::Parser
   # prolly pop header then fuse with parse_dimensions
   def parse_format
     @lexer.pop(NexusParser::Tokens::Format) 
-    while @lexer.peek(NexusParser::Tokens::ValuePair)
-      @builder.add_var(@lexer.pop(NexusParser::Tokens::ValuePair).value)
+
+    while @lexer.peek(NexusParser::Tokens::ValuePair) || @lexer.peek(NexusParser::Tokens::RespectCase)
+      @lexer.pop(NexusParser::Tokens::RespectCase) if @lexer.peek(NexusParser::Tokens::RespectCase) # !! TODO: nothing is set, respect case is ignored
+      @builder.add_var(@lexer.pop(NexusParser::Tokens::ValuePair).value) if @lexer.peek(NexusParser::Tokens::ValuePair)
     end
 
     check_initialization_of_ntax_nchar

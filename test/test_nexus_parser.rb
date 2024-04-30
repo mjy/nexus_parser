@@ -653,6 +653,20 @@ class Test_Parser < Test::Unit::TestCase
     # add test that nothing is left in lexer
   end
 
+  def test_parse_format_respect_case
+    input = "FORMAT DATATYPE = STANDARD RESPECTCASE GAP = - MISSING = ? SYMBOLS = \"  0 1 2 3 4 5 6 7 8 9 A\";"
+    builder = NexusParser::Builder.new
+    lexer = NexusParser::Lexer.new(input)
+
+    NexusParser::Parser.new(lexer,builder).parse_format
+    foo = builder.nexus_file
+
+    assert_equal "STANDARD", foo.vars[:datatype]
+    assert_equal "-", foo.vars[:gap]
+    assert_equal "?", foo.vars[:missing]
+    assert_equal '0 1 2 3 4 5 6 7 8 9 A', foo.vars[:symbols]
+  end
+
   def test_parse_chr_state_labels
     input =" CHARSTATELABELS
     1 Tibia_II /  norm modified, 2 TII_macrosetae /  '= TI' stronger, 3 Femoral_tuber /  abs pres 'm-setae', 5 Cymbium /  dorsal mesal lateral, 6 Paracymbium /  abs pres, 7 Globular_tegulum /  abs pres, 8  /  entire w_lobe, 9 Conductor_wraps_embolus, 10 Median_apophysis /  pres abs ;
