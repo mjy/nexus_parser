@@ -13,6 +13,9 @@ tmtags
 ## VIM
 *.swp
 
+## BYEBUG
+.byebug_history
+
 ## PROJECT::GENERAL
 coverage
 rdoc

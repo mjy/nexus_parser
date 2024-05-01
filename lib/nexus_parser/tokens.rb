@@ -1,5 +1,7 @@
 module NexusParser::Tokens
 
+  ENDBLKSTR = '(end|endblock)'.freeze
+
   class Token
     # this allows access the the class attribute regexp, without using a class variable
     class << self; attr_reader :regexp; end
@@ -31,12 +33,12 @@ module NexusParser::Tokens
   end
 
   class EndBlk < Token
-    @regexp = Regexp.new(/\A\s*([\s]*(end|endblock)[\s]*;[\s]*)/i)
+    @regexp = Regexp.new(/\A\s*([\s]*#{ENDBLKSTR}[\s]*;[\s]*)/i)
   end
 
   # label
   class AuthorsBlk < Token
-    @regexp = Regexp.new(/\A\s*(Authors;.*?END;)\s*/im) # TODO: why not EndBlk use here
+    @regexp = Regexp.new(/\A\s*(Authors;.*?#{ENDBLKSTR};)\s*/im)
   end
 
   # label
@@ -138,35 +140,35 @@ module NexusParser::Tokens
   # unparsed blocks
 
   class TreesBlk < Token
-    @regexp = Regexp.new(/\A\s*(trees;.*?END;)\s*/im) # note the multi-line /m
+    @regexp = Regexp.new(/\A\s*(trees;.*?#{ENDBLKSTR};)\s*/im) # note the multi-line /m
   end
 
   class SetsBlk < Token
-    @regexp = Regexp.new(/\A\s*(sets;.*?END;)\s*/im)
+    @regexp = Regexp.new(/\A\s*(sets;.*?#{ENDBLKSTR};)\s*/im)
   end
 
   class MqCharModelsBlk < Token
-    @regexp = Regexp.new(/\A\s*(MESQUITECHARMODELS;.*?END;)\s*/im)
+    @regexp = Regexp.new(/\A\s*(MESQUITECHARMODELS;.*?#{ENDBLKSTR};)\s*/im)
   end
 
   class LabelsBlk < Token
-    @regexp = Regexp.new(/\A\s*(LABELS;.*?END;)\s*/im)
+    @regexp = Regexp.new(/\A\s*(LABELS;.*?#{ENDBLKSTR};)\s*/im)
   end
 
   class AssumptionsBlk < Token
-    @regexp = Regexp.new(/\A\s*(ASSUMPTIONS;.*?END;)\s*/im)
+    @regexp = Regexp.new(/\A\s*(ASSUMPTIONS;.*?#{ENDBLKSTR};)\s*/im)
   end
 
   class CodonsBlk < Token
-    @regexp = Regexp.new(/\A\s*(CODONS;.*?END;)\s*/im)
+    @regexp = Regexp.new(/\A\s*(CODONS;.*?#{ENDBLKSTR};)\s*/im)
   end
 
   class MesquiteBlk < Token
-    @regexp = Regexp.new(/\A\s*(Mesquite;.*?END;)\s*/im)
+    @regexp = Regexp.new(/\A\s*(Mesquite;.*?#{ENDBLKSTR};)\s*/im)
   end
 
   class BlkEnd < Token
-    @regexp = Regexp.new(/\A[\s]*(END;)\s*/i)
+    @regexp = Regexp.new(/\A[\s]*(#{ENDBLKSTR};)\s*/i)
   end
 
   class LBracket < Token

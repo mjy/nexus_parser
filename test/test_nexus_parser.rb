@@ -56,6 +56,12 @@ class Test_Lexer < Test::Unit::TestCase
     assert lexer2.pop(NexusParser::Tokens::LParen)
     assert lexer2.pop(NexusParser::Tokens::RParen)
 
+    lexer2a = NexusParser::Lexer.new("begin authors; BLORF endblock; []")
+    assert lexer2a.pop(NexusParser::Tokens::BeginBlk)
+    assert lexer2a.pop(NexusParser::Tokens::AuthorsBlk)
+    assert lexer2a.pop(NexusParser::Tokens::LBracket)
+    assert lexer2a.pop(NexusParser::Tokens::RBracket)
+
     lexer3 = NexusParser::Lexer.new("[ foo ] Begin Characters; BLORF end; [] ()  some crud here")
     assert lexer3.pop(NexusParser::Tokens::LBracket)
     assert id = lexer3.pop(NexusParser::Tokens::ID)
@@ -149,7 +155,7 @@ class Test_Lexer < Test::Unit::TestCase
   def test_EndBlk
     lexer = NexusParser::Lexer.new("   \n\n End   ;")
     assert foo = lexer.pop(NexusParser::Tokens::EndBlk)
-    lexer = NexusParser::Lexer.new("\n\nEnd;")
+    lexer = NexusParser::Lexer.new("\n\nEndblock;")
     assert foo = lexer.pop(NexusParser::Tokens::EndBlk)
 
     lexer = NexusParser::Lexer.new("123123  \n\nEnd;")
@@ -401,13 +407,13 @@ class Test_Lexer < Test::Unit::TestCase
         CHARGROUPLABEL Behavior COLOR = (RGB 1.0 0.46666667 1.0) ;
 
 
-      END;
+      ENDBLOCK;
 
     BEGIN some other block;")
 
     assert foo = lexer.pop(NexusParser::Tokens::LabelsBlk)
     assert_equal 'LABELS', foo.value.slice(0,6)
-    assert_equal 'END;', foo.value.slice(-4,4)
+    assert_equal 'ENDBLOCK;', foo.value.slice(-9,9)
   end
 
   def test_SetsBlk
