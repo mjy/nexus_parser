@@ -75,7 +75,7 @@ class NexusParser
   class Coding
     # unfortunately we need this for notes
     attr_accessor :notes
-    attr_writer :state 
+    attr_writer :state
 
     def initialize(options = {})
       @states = options[:states]
@@ -85,7 +85,7 @@ class NexusParser
     def states
       @states.class == Array ? @states : [@states]
     end
-    
+
   end
 
   class Note
@@ -270,7 +270,7 @@ def parse_nexus_file(input)
   @input = input
   @input.gsub!(/\[[^\]]*\]/,'')  # strip out all comments BEFORE we parse the file
   # quickly peek at the input, does this look like a Nexus file?
-  if !(@input =~ /\#Nexus/i) || !(@input =~ /Begin/i) || !(@input =~ /Matrix/i) || !(@input =~ /end\;/i)
+  if !(@input =~ /\#Nexus/i) || !(@input =~ /Begin/i) || !(@input =~ /Matrix/i) || !(@input =~ /(end|endblock)\;/i)
     raise(NexusParser::ParseError, "File is missing at least some required headers, check formatting.", caller)
   end
 
