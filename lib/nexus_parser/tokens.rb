@@ -1,5 +1,7 @@
 module NexusParser::Tokens
 
+  ENDBLKSTR = '(end|endblock)'.freeze
+
   class Token
     # this allows access the the class attribute regexp, without using a class variable
     class << self; attr_reader :regexp; end
@@ -30,7 +32,6 @@ module NexusParser::Tokens
     @regexp = Regexp.new(/\A\s*(\s*Begin\s*)/i)
   end
 
-  ENDBLKSTR = '(end|endblock)'
   class EndBlk < Token
     @regexp = Regexp.new(/\A\s*([\s]*#{ENDBLKSTR}[\s]*;[\s]*)/i)
   end
