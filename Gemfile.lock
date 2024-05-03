@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    nexus_parser (1.2.0)
+    nexus_parser (1.2.1)
 
 GEM
   remote: https://rubygems.org/
@@ -10,7 +10,7 @@ GEM
     power_assert (2.0.3)
     psych (5.1.2)
       stringio
-    rake (13.2.0)
+    rake (13.2.1)
     rdoc (6.6.3.1)
       psych (>= 4.0.0)
     stringio (3.1.0)
