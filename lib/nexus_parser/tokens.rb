@@ -258,7 +258,7 @@ module NexusParser::Tokens
       NexusParser::Tokens::ValuePair,  # this has bad overlap with Label and likely IDs (need to kill the latter, its a lesser Label)
       NexusParser::Tokens::CharStateLabels,
       NexusParser::Tokens::ChrsBlk,
-      NexusParser::Tokens::Number,
+      NexusParser::Tokens::Number, # partial overlap with Label
       NexusParser::Tokens::Matrix,
       NexusParser::Tokens::SemiColon,
       NexusParser::Tokens::MesquiteIDs,
