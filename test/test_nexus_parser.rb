@@ -623,6 +623,59 @@ class Test_Parser < Test::Unit::TestCase
     assert_equal 10, foo.characters.size
   end
 
+  def test_characters_charlabels_statelabels_block
+    input=  "
+      DIMENSIONS  NCHAR=1;
+      FORMAT DATATYPE = STANDARD GAP = - MISSING = ? SYMBOLS = \"  0 1 2 3 4 5 6 7 8 9 A\";
+      CHARLABELS
+        Tibia_II
+        TII_macrosetae
+        Femoral_tuber
+        _
+        Cymbium
+        Paracymbium
+        Globular_tegulum
+        _
+        Conductor_wraps_embolus
+        Median_apophysis
+      ;
+      STATELABELS
+      1 norm modified,
+      2 '= TI' stronger,
+      3 abs pres 'm-setae',
+      5 dorsal mesal lateral,
+      6 abs pres,
+      7 abs pres,
+      8 entire w_lobe,
+      10 pres abs
+      ;
+      MATRIX
+      Dictyna                0?00201001
+      Uloborus               0?11000000
+      Deinopis               0?01002???
+      Nephila&Herennia       0?21010011
+      'Nephilengys_cruentata'0?(0,1)1010(0,1,2)11
+      Meta                   0?01A10011
+      Leucauge_venusta       ???--?-??-
+      Pachygnatha            0?210(0 1)0011
+      'Theridiosoma_01'      ??????????
+      Tetragnatha            0?01011011
+
+    ;
+    ENDBLOCK;"
+
+    builder = NexusParser::Builder.new
+    @lexer = NexusParser::Lexer.new(input)
+
+    # stub the taxa, they would otherwise get added in dimensions or taxa block
+    (0..9).each{|i| builder.stub_taxon}
+
+    assert_raise_with_message(NexusParser::ParseError,
+      /CHARLABELS\/STATELABELS are unsupported/) do
+      NexusParser::Parser.new(@lexer,builder).parse_characters_blk
+    end
+  end
+
   def test_codings
     foo = parse_nexus_file(@nf)
     assert_equal 100, foo.codings.flatten.size  # two multistates count in single cells
