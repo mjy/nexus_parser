@@ -118,7 +118,7 @@ class NexusParser
     end
   end
 
-end
+end # end NexusParser
 
 
 # constructs the NexusParser
@@ -259,7 +259,7 @@ class Builder
     @nf
   end
 
-end # end file
+end # end Builder
 
   # NexusParser::ParseError
   class ParseError < StandardError

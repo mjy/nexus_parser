@@ -78,7 +78,6 @@ module NexusParser::Tokens
     @regexp = Regexp.new(/\A\s*(\s*taxlabels\s*)\s*/i)
   end
 
-  # same as ID
   class Label < Token
     @regexp = Regexp.new('\A\s*((\'+[^\']+\'+)|(\"+[^\"]+\"+)|(\w[^,:(); \t\n]*|_)+)\s*') #  matches "foo and stuff", foo, 'stuff or foo', '''foo''', """bar""" BUT NOT ""foo" " # choking on 'Foo_stuff_things'
     def initialize(str)
@@ -235,16 +234,6 @@ module NexusParser::Tokens
     @regexp = Regexp.new('\A\s*(\/)\s*')
   end
 
-  # labels
-  class ID < Token
-    @regexp = Regexp.new('\A\s*((\'[^\']+\')|(\w[^,:(); \t\n]*|_)+)\s*')
-    def initialize(str)
-      str.strip!
-      str = str[1..-2] if str[0..0] == "'" # get rid of quote marks
-      @value = str
-    end
-  end
-
   class Colon < Token
     @regexp = Regexp.new('\A\s*(:)\s*')
   end
@@ -295,7 +284,7 @@ module NexusParser::Tokens
       NexusParser::Tokens::Format,
       NexusParser::Tokens::RespectCase,
       NexusParser::Tokens::Equals,
-      NexusParser::Tokens::ValuePair,  # this has bad overlap with Label and likely IDs (need to kill the latter, its a lesser Label)
+      NexusParser::Tokens::ValuePair,  # this has bad overlap with Label
       NexusParser::Tokens::CharStateLabels,
       NexusParser::Tokens::ChrsBlk,
       NexusParser::Tokens::Number, # partial overlap with Label
@@ -314,7 +303,6 @@ module NexusParser::Tokens
       NexusParser::Tokens::Label, # must be before RowVec
       NexusParser::Tokens::RowVec,
       NexusParser::Tokens::LinkLine,
-      NexusParser::Tokens::ID # need to trash this
     ]
   end
 

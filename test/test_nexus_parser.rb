@@ -35,18 +35,18 @@ class Test_Lexer < Test::Unit::TestCase
   def test_lexer
     lexer = NexusParser::Lexer.new("[ foo ] BEGIN taxa; BLORF end;")
     assert lexer.pop(NexusParser::Tokens::LBracket)
-    assert id = lexer.pop(NexusParser::Tokens::ID)
+    assert id = lexer.pop(NexusParser::Tokens::Label)
     assert_equal(id.value, "foo")
     assert lexer.pop(NexusParser::Tokens::RBracket)
     assert lexer.pop(NexusParser::Tokens::BeginBlk)
     assert lexer.pop(NexusParser::Tokens::TaxaBlk)
-    assert foo = lexer.pop(NexusParser::Tokens::ID)
+    assert foo = lexer.pop(NexusParser::Tokens::Label)
     assert_equal("BLORF", foo.value) # truncating whitespace
     assert lexer.pop(NexusParser::Tokens::BlkEnd)
 
     lexer2 = NexusParser::Lexer.new("[ foo ] begin authors; BLORF end; [] ()  some crud here")
     assert lexer2.pop(NexusParser::Tokens::LBracket)
-    assert id = lexer2.pop(NexusParser::Tokens::ID)
+    assert id = lexer2.pop(NexusParser::Tokens::Label)
     assert_equal(id.value, "foo")
     assert lexer2.pop(NexusParser::Tokens::RBracket)
     assert lexer2.pop(NexusParser::Tokens::BeginBlk)
@@ -64,12 +64,12 @@ class Test_Lexer < Test::Unit::TestCase
 
     lexer3 = NexusParser::Lexer.new("[ foo ] Begin Characters; BLORF end; [] ()  some crud here")
     assert lexer3.pop(NexusParser::Tokens::LBracket)
-    assert id = lexer3.pop(NexusParser::Tokens::ID)
+    assert id = lexer3.pop(NexusParser::Tokens::Label)
     assert_equal(id.value, "foo")
     assert lexer3.pop(NexusParser::Tokens::RBracket)
     assert lexer3.pop(NexusParser::Tokens::BeginBlk)
     assert lexer3.pop(NexusParser::Tokens::ChrsBlk)
-    assert foo = lexer3.pop(NexusParser::Tokens::ID)
+    assert foo = lexer3.pop(NexusParser::Tokens::Label)
     assert_equal("BLORF", foo.value)
     assert lexer3.pop(NexusParser::Tokens::BlkEnd)
 
@@ -465,7 +465,7 @@ class Test_Lexer < Test::Unit::TestCase
 
   def test_lexer_errors
     lexer = NexusParser::Lexer.new("*&")
-    assert_raise(NexusParser::ParseError) {lexer.peek(NexusParser::Tokens::ID)}
+    assert_raise(NexusParser::ParseError) {lexer.peek(NexusParser::Tokens::Label)}
   end
 end
 
