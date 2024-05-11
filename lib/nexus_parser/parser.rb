@@ -194,25 +194,22 @@ class NexusParser::Parser
         break
       else
         opts = {}
-
         name = ""
-        index = @lexer.pop(NexusParser::Tokens::Number).value.to_i
-        (name = @lexer.pop(NexusParser::Tokens::Label).value) if @lexer.peek(NexusParser::Tokens::Label) # not always given a letter
+
+        index = @lexer.pop(NexusParser::Tokens::PositiveInteger).value.to_i
+
+        (name = @lexer.pop(NexusParser::Tokens::CharacterLabel).value) if @lexer.peek(NexusParser::Tokens::CharacterLabel) # not always given a letter
 
         @lexer.pop(NexusParser::Tokens::BckSlash) if @lexer.peek(NexusParser::Tokens::BckSlash)
 
         if !@lexer.peek(NexusParser::Tokens::Comma) || !@lexer.peek(NexusParser::Tokens::SemiColon)
           i = 0
 
-          # Number matching is given priority over Label matching (see Tokens
-          # list) but both are parsed into strings, so we're really matching
-          # against the union of those two tokens here.
-          while @lexer.peek(NexusParser::Tokens::Number) || @lexer.peek(NexusParser::Tokens::Label)
-            if @lexer.peek(NexusParser::Tokens::Number)
-              opts.update({i.to_s => @lexer.pop(NexusParser::Tokens::Number).value.to_s})
-            elsif @lexer.peek(NexusParser::Tokens::Label)
-              opts.update({i.to_s => @lexer.pop(NexusParser::Tokens::Label).value})
-            end
+          while @lexer.peek(NexusParser::Tokens::CharacterLabel)
+            opts.update({
+              i.to_s => @lexer.pop(NexusParser::Tokens::CharacterLabel).value
+            })
+
             i += 1
           end
         end
