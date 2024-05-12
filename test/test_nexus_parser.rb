@@ -608,6 +608,30 @@ class Test_Parser < Test::Unit::TestCase
     assert_equal ["-", "0", "1", "2", "A"], foo.characters[4].state_labels
   end
 
+  def test_matrix_with_short_row
+    input=  "
+      DIMENSIONS  NCHAR=2;
+      FORMAT DATATYPE = STANDARD GAP = - MISSING = ? SYMBOLS = \"  0 1 2 3 4 5 6 7 8 9 A\";
+      CHARSTATELABELS
+        1 Tibia_II /  norm modified, 2 TII_macrosetae /  '= TI' stronger;
+      MATRIX
+      Dictyna                0?
+      Uloborus               ??
+      Deinopis               0
+    ;
+    END;"
+
+    builder = NexusParser::Builder.new
+    @lexer = NexusParser::Lexer.new(input)
+
+    # stub the taxa, they would otherwise get added in dimensions or taxa block
+    (0..2).each{|i| builder.stub_taxon}
+
+    assert_raise_with_message(NexusParser::ParseError, /too short/) {
+      NexusParser::Parser.new(@lexer, builder).parse_characters_blk
+    }
+  end
+
   def test_characters_block_without_IDs_or_title
     input=  "
       DIMENSIONS  NCHAR=10;
