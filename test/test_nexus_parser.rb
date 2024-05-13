@@ -76,17 +76,17 @@ class Test_Lexer < Test::Unit::TestCase
     lexer4 = NexusParser::Lexer.new("Begin Characters; 123123123 end; [] ()  some crud here")
     assert lexer4.pop(NexusParser::Tokens::BeginBlk)
     assert lexer4.pop(NexusParser::Tokens::ChrsBlk)
-    assert foo = lexer4.pop(NexusParser::Tokens::Number)
-    assert_equal(123123123, foo.value)
+    assert foo = lexer4.pop(NexusParser::Tokens::PositiveInteger)
+    assert_equal('123123123', foo.value)
     assert lexer4.pop(NexusParser::Tokens::BlkEnd)
 
     lexer5 = NexusParser::Lexer.new("(0,1)")
     assert lexer5.pop(NexusParser::Tokens::LParen)
-    assert foo = lexer5.pop(NexusParser::Tokens::Number)
-    assert_equal(0, foo.value)
+    assert foo = lexer5.pop(NexusParser::Tokens::PositiveInteger)
+    assert_equal('0', foo.value)
     assert lexer5.pop(NexusParser::Tokens::Comma)
-    assert foo = lexer5.pop(NexusParser::Tokens::Number)
-    assert_equal(1, foo.value)
+    assert foo = lexer5.pop(NexusParser::Tokens::PositiveInteger)
+    assert_equal('1', foo.value)
     assert lexer5.pop(NexusParser::Tokens::RParen)
 
     lexer6 =  NexusParser::Lexer.new(" 210(0,1)10A1\n")
@@ -938,7 +938,7 @@ class Test_Parser < Test::Unit::TestCase
 
 
   def test_number_label_chr_state_labels
-    # Character state names that start with Numbers
+    # Character state names that start with numbers
     input = 'CHARSTATELABELS 1 Tibia_II /
       123abc
       -1.23abc
