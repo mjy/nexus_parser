@@ -141,6 +141,9 @@ class Builder
   def code_row(taxon_index, rowvector)
 
     @nf.characters.each_with_index do |c, i|
+      raise(ParseError,
+        "Row #{taxon_index} of the matrix is too short") if rowvector[i].nil?
+
       @nf.codings[taxon_index.to_i] = [] if !@nf.codings[taxon_index.to_i]
       @nf.codings[taxon_index.to_i][i] = NexusParser::Coding.new(:states => rowvector[i])
 
@@ -185,7 +188,7 @@ class Builder
 
     # need to create the characters
 
-    raise(NexusParser::ParseError, "Can't update character of index #{@index}, it doesn't exist! This is a problem parsing the character state labels. Check the indices. It may be for this character \"#{@opt[:name]}\".") if !@nf.characters[@index]
+    raise(ParseError, "Can't update character of index #{@index}, it doesn't exist! This is a problem parsing the character state labels. Check the indices. It may be for this character \"#{@opt[:name]}\".") if !@nf.characters[@index]
 
     (@nf.characters[@index].name = @opt[:name]) if @opt[:name]
 

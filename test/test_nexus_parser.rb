@@ -93,15 +93,15 @@ class Test_Lexer < Test::Unit::TestCase
     assert foo = lexer6.pop(NexusParser::Tokens::RowVec)
     assert_equal(["2","1","0",["0","1"],"1","0","A","1"], foo.value)
 
-    lexer6a =  NexusParser::Lexer.new("  21a(0 1)0b{3 4 5}(0)(1 a)\n")
+    lexer6a =  NexusParser::Lexer.new("  21a(0 1)0b{345}(0)(1 a)\n")
     assert foo = lexer6a.pop(NexusParser::Tokens::RowVec)
     assert_equal(["2", "1", "a", ["0", "1"], "0", "b", ["3", "4", "5"], "0", ["1", "a"]], foo.value)
 
-    lexer6b =  NexusParser::Lexer.new(" 201{0 1}{0 1}0100)\x0A") # *nix line ending
+    lexer6b =  NexusParser::Lexer.new(" 201(01){0 1}0100\x0A") # *nix line ending
     assert foo = lexer6b.pop(NexusParser::Tokens::RowVec)
     assert_equal(["2", "0", "1", ["0", "1"], ["0", "1"], "0", "1", "0", "0"], foo.value)
 
-    lexer6c =  NexusParser::Lexer.new(" 201{0 1}{0 1}0100)\x0D\x0A") # * dos line ending
+    lexer6c =  NexusParser::Lexer.new(" 201{0 1}{01}0100\x0D\x0A") # * dos line ending
     assert foo = lexer6c.pop(NexusParser::Tokens::RowVec)
     assert_equal(["2", "0", "1", ["0", "1"], ["0", "1"], "0", "1", "0", "0"], foo.value)
 
@@ -126,7 +126,41 @@ class Test_Lexer < Test::Unit::TestCase
   def test_row_vec
     lexer = NexusParser::Lexer.new("0?(0 1)10(A BD , C)1(0,1,2)1-\n")
     assert foo = lexer.pop(NexusParser::Tokens::RowVec)
-    assert_equal(["0", "?", ["0", "1"], "1", "0", ["A", "BD", "C"], "1", ["0", "1", "2"], "1", "-"], foo.value)
+    assert_equal(["0", "?", ["0", "1"], "1", "0", ["A", "B", "D", "C"], "1", ["0", "1", "2"], "1", "-"], foo.value)
+  end
+
+  def test_ungrouped_spaces_in_row_vec
+    lexer = NexusParser::Lexer.new("- A 12(BC) ? \n")
+    assert foo = lexer.pop(NexusParser::Tokens::RowVec)
+    assert_equal(['-', 'A', '1', '2', ['B', 'C'], '?'], foo.value)
+  end
+
+  def test_mismatched_parens_row_vec
+    lexer = NexusParser::Lexer.new("01(12(13\n")
+    assert_raise_with_message(NexusParser::ParseError, /Mismatch/) {
+      lexer.pop(NexusParser::Tokens::RowVec)
+    }
+  end
+
+  def test_mismatched_groupers_row_vec
+    lexer = NexusParser::Lexer.new("01(12}13\n")
+    assert_raise_with_message(NexusParser::ParseError, /Mismatch/) {
+      lexer.pop(NexusParser::Tokens::RowVec)
+    }
+  end
+
+  def test_nested_parens_row_vec
+    lexer = NexusParser::Lexer.new("01(12(34))13\n")
+    assert_raise_with_message(NexusParser::ParseError, /Mismatch/) {
+      lexer.pop(NexusParser::Tokens::RowVec)
+    }
+  end
+
+  def test_unclosed_parens_row_vec
+    lexer = NexusParser::Lexer.new("01(123413\n")
+    assert_raise_with_message(NexusParser::ParseError, /Unclosed/) {
+      lexer.pop(NexusParser::Tokens::RowVec)
+    }
   end
 
   def test_punctuation
@@ -572,6 +606,30 @@ class Test_Parser < Test::Unit::TestCase
     assert_equal ["0","1"], foo.codings[7][5].states
     assert_equal ["?"], foo.codings[9][1].states
     assert_equal ["-", "0", "1", "2", "A"], foo.characters[4].state_labels
+  end
+
+  def test_matrix_with_short_row
+    input=  "
+      DIMENSIONS  NCHAR=2;
+      FORMAT DATATYPE = STANDARD GAP = - MISSING = ? SYMBOLS = \"  0 1 2 3 4 5 6 7 8 9 A\";
+      CHARSTATELABELS
+        1 Tibia_II /  norm modified, 2 TII_macrosetae /  '= TI' stronger;
+      MATRIX
+      Dictyna                0?
+      Uloborus               ??
+      Deinopis               0
+    ;
+    END;"
+
+    builder = NexusParser::Builder.new
+    @lexer = NexusParser::Lexer.new(input)
+
+    # stub the taxa, they would otherwise get added in dimensions or taxa block
+    (0..2).each{|i| builder.stub_taxon}
+
+    assert_raise_with_message(NexusParser::ParseError, /too short/) {
+      NexusParser::Parser.new(@lexer, builder).parse_characters_blk
+    }
   end
 
   def test_characters_block_without_IDs_or_title
