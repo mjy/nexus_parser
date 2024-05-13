@@ -118,10 +118,50 @@ module NexusParser::Tokens
   class RowVec < Token
     @regexp = Regexp.new(/\A\s*(.+)\s*\n/i)
     def initialize(str)
-      # meh! Ruby is simpler to read than Perl?
-      # handles both () and {} style multistates
-      s = str.split(/\(|\)|\}|\{/).collect{|s| s=~ /[\,|\s]/ ? s.split(/[\,|\s]/) : s}.inject([]){|sum, x| x.class == Array ? sum << x.delete_if {|y| y == "" } : sum + x.strip.split(//)}
-      @value = s
+      # We ignore commas outside (and inside) of groupings, it's fine.
+      str.gsub!(/[\, \t]/, '')
+
+      groupers = ['(', ')', '{', '}']
+      openers = ['(', '{']
+      closers = [')', '}']
+      closer_for = { '(' => ')', '{' => '}' }
+
+      a = []
+      group = nil
+      group_closer = nil
+      str.each_char { |c|
+        if groupers.include? c
+          if ((openers.include?(c) && !group.nil?) ||
+            (closers.include?(c) && (group.nil? || c != group_closer)))
+            raise(NexusParser::ParseError,
+              "Mismatched grouping in matrix row '#{str}'")
+          end
+
+          if openers.include? c
+            group = []
+            group_closer = closer_for[c]
+          else # c is a closer
+            if group.count == 1
+              a << group.first
+            elsif group.count > 1
+              a << group
+            end
+            group = nil
+            group_closer = nil
+          end
+        else
+          if group.nil?
+            a << c
+          else
+            group << c
+          end
+        end
+      }
+
+      raise(NexusParser::ParseError,
+        "Unclosed grouping in matrix row '#{str}'") if !group.nil?
+
+      @value = a
     end
   end
 
@@ -270,7 +310,7 @@ module NexusParser::Tokens
       NexusParser::Tokens::CharLabels,
       NexusParser::Tokens::StateLabels,
       NexusParser::Tokens::ChrsBlk,
-      NexusParser::Tokens::Number,
+      NexusParser::Tokens::Number, # partial overlap with Label
       NexusParser::Tokens::Matrix,
       NexusParser::Tokens::SemiColon,
       NexusParser::Tokens::MesquiteIDs,
