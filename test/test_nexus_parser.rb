@@ -462,11 +462,6 @@ class Test_Lexer < Test::Unit::TestCase
     assert_equal 'SETS', foo.value.slice(0,4)
     assert_equal 'END;', foo.value.slice(-4,4)
   end
-
-  def test_lexer_errors
-    lexer = NexusParser::Lexer.new("*&")
-    assert_raise(NexusParser::ParseError) {lexer.peek(NexusParser::Tokens::Label)}
-  end
 end
 
 

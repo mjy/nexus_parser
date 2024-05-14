@@ -262,49 +262,4 @@ module NexusParser::Tokens
 
   # NexusParser::Tokens::NexusComment
 
-  # this list also defines priority, i.e. if tokens have overlap (which they shouldn't!!) then the earlier indexed token will match first
-  def self.nexus_file_token_list
-    [ NexusParser::Tokens::NexusStart,
-      NexusParser::Tokens::BeginBlk,
-      NexusParser::Tokens::EndBlk,
-      NexusParser::Tokens::AuthorsBlk,
-      NexusParser::Tokens::SetsBlk,
-      NexusParser::Tokens::MqCharModelsBlk,
-      NexusParser::Tokens::AssumptionsBlk,
-      NexusParser::Tokens::CodonsBlk,
-      NexusParser::Tokens::MesquiteBlk,
-      NexusParser::Tokens::TreesBlk,
-      NexusParser::Tokens::LabelsBlk,
-      NexusParser::Tokens::TaxaBlk,
-      NexusParser::Tokens::NotesBlk,
-      NexusParser::Tokens::Title,
-      NexusParser::Tokens::Taxlabels,
-      NexusParser::Tokens::Dimensions,
-      NexusParser::Tokens::FileLbl,
-      NexusParser::Tokens::Format,
-      NexusParser::Tokens::RespectCase,
-      NexusParser::Tokens::Equals,
-      NexusParser::Tokens::ValuePair,  # this has bad overlap with Label
-      NexusParser::Tokens::CharStateLabels,
-      NexusParser::Tokens::ChrsBlk,
-      NexusParser::Tokens::Number, # partial overlap with Label
-      NexusParser::Tokens::Matrix,
-      NexusParser::Tokens::SemiColon,
-      NexusParser::Tokens::MesquiteIDs,
-      NexusParser::Tokens::MesquiteBlockID,
-      NexusParser::Tokens::BlkEnd,
-      NexusParser::Tokens::Colon,
-      NexusParser::Tokens::BckSlash,
-      NexusParser::Tokens::Comma,
-      NexusParser::Tokens::LParen,
-      NexusParser::Tokens::RParen,
-      NexusParser::Tokens::LBracket,
-      NexusParser::Tokens::RBracket,
-      NexusParser::Tokens::Label, # must be before RowVec
-      NexusParser::Tokens::RowVec,
-      NexusParser::Tokens::LinkLine,
-    ]
-  end
-
 end
-

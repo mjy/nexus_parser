@@ -266,17 +266,21 @@ class NexusParser::Parser
         if @lexer.peek(NexusParser::Tokens::ValuePair)
           @vars.update(@lexer.pop(NexusParser::Tokens::ValuePair).value)
 
-        elsif @lexer.peek(NexusParser::Tokens::Label)
-          if @vars[:type] # we have the data for this row write it, and start a new one
-
-            @builder.add_note(@vars)
-            @vars = {}
-          else
-            @vars.update(:type => @lexer.pop(NexusParser::Tokens::Label).value)
-          end
         elsif @lexer.peek(NexusParser::Tokens::FileLbl)
           @lexer.pop(NexusParser::Tokens::FileLbl)
           @vars.update(:file => 'file') # we check for whether :file key is present and handle conditionally
+
+        else @lexer.peek(NexusParser::Tokens::Label)
+          # If we already have a :type set then the Label we just peeked starts a
+          # new row, so write the current one and then start a new one.
+          if @vars[:type]
+            @builder.add_note(@vars)
+
+            @vars = {}
+            @vars.update(:type => @lexer.pop(NexusParser::Tokens::Label).value)
+          else
+            @vars.update(:type => @lexer.pop(NexusParser::Tokens::Label).value)
+          end
         end
       end
     end
