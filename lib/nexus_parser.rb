@@ -3,9 +3,6 @@
 # uses the PhyloTree parser/lexer engine by Krishna Dole which in turn was based on
 # Thomas Mailund's <mailund@birc.dk> 'newick-1.0.5' Python library
 
-# outstanding issues:
-## need to resolve Tokens Labels, ValuePair, IDs
-
 module NexusParser
 
   require File.expand_path(File.join(File.dirname(__FILE__), 'nexus_parser', 'tokens'))
@@ -118,7 +115,7 @@ class NexusParser
     end
   end
 
-end
+end # end NexusParser
 
 
 # constructs the NexusParser
@@ -259,7 +256,7 @@ class Builder
     @nf
   end
 
-end # end file
+end # end Builder
 
   # NexusParser::ParseError
   class ParseError < StandardError

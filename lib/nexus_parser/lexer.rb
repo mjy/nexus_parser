@@ -33,18 +33,8 @@ class NexusParser::Lexer
     if @next_token
       return @next_token
     else
-      # check for a match on the specified class first
       if match(token_class)
         return @next_token
-      else
-        # now check all the tokens for a match
-        NexusParser::Tokens.nexus_file_token_list.each {|t|
-          return @next_token if match(t)
-        }
-      end
-      # no match, either end of string or lex-error
-      if @input != ''
-        raise( NexusParser::ParseError, "Lex Error, unknown token at #{@input[0..10]}...", caller)
       else
         return nil
       end

@@ -1,6 +1,7 @@
 module NexusParser::Tokens
 
   ENDBLKSTR = '(end|endblock)'.freeze
+  QUOTEDLABEL = '(\'+[^\']+\'+)|(\"+[^\"]+\"+)'
 
   class Token
     # this allows access the the class attribute regexp, without using a class variable
@@ -78,15 +79,27 @@ module NexusParser::Tokens
     @regexp = Regexp.new(/\A\s*(\s*taxlabels\s*)\s*/i)
   end
 
-  # same as ID
-  class Label < Token
-    @regexp = Regexp.new('\A\s*((\'+[^\']+\'+)|(\"+[^\"]+\"+)|(\w[^,:(); \t\n]*|_)+)\s*') #  matches "foo and stuff", foo, 'stuff or foo', '''foo''', """bar""" BUT NOT ""foo" " # choking on 'Foo_stuff_things'
+  class LabelBase < Token
     def initialize(str)
       str.strip!
       str = str[1..-2] if str[0..0] == "'" # get rid of quote marks
       str = str[1..-2] if str[0..0] == '"'
       str.strip!
       @value = str
+    end
+  end
+
+  class Label < LabelBase
+    @regexp = Regexp.new(/\A\s*(#{QUOTEDLABEL}|(\w[^,:(); \t\n]*)+)\s*/) #  matches "foo and stuff", foo, 'stuff or foo', '''foo''', """bar""" BUT NOT ""foo" "
+    def initialize(str)
+      super(str)
+    end
+  end
+
+  class CharacterLabel < LabelBase
+    @regexp = Regexp.new(/\A\s*(#{QUOTEDLABEL}|[^ \t\n\/\'\",;]+)\s*/)
+    def initialize(str)
+      super(str)
     end
   end
 
@@ -235,16 +248,6 @@ module NexusParser::Tokens
     @regexp = Regexp.new('\A\s*(\/)\s*')
   end
 
-  # labels
-  class ID < Token
-    @regexp = Regexp.new('\A\s*((\'[^\']+\')|(\w[^,:(); \t\n]*|_)+)\s*')
-    def initialize(str)
-      str.strip!
-      str = str[1..-2] if str[0..0] == "'" # get rid of quote marks
-      @value = str
-    end
-  end
-
   class Colon < Token
     @regexp = Regexp.new('\A\s*(:)\s*')
   end
@@ -257,66 +260,10 @@ module NexusParser::Tokens
     @regexp = Regexp.new('\A\s*(\,)\s*')
   end
 
-  class Number < Token
-    @regexp = Regexp.new('\A\s*(-?\d+(\.\d+)?([eE][+-]?\d+)?)\s*')
-    def initialize(str)
-      # a little oddness here, in some case we don't want to include the .0
-      # see issues with numbers as labels
-      if str =~ /\./
-        @value = str.to_f
-      else
-        @value = str.to_i
-      end
-
-    end
+  class PositiveInteger < Token
+    @regexp = Regexp.new('\A\s*(\d+)\s*')
   end
 
   # NexusParser::Tokens::NexusComment
 
-  # this list also defines priority, i.e. if tokens have overlap (which they shouldn't!!) then the earlier indexed token will match first
-  def self.nexus_file_token_list
-    [ NexusParser::Tokens::NexusStart,
-      NexusParser::Tokens::BeginBlk,
-      NexusParser::Tokens::EndBlk,
-      NexusParser::Tokens::AuthorsBlk,
-      NexusParser::Tokens::SetsBlk,
-      NexusParser::Tokens::MqCharModelsBlk,
-      NexusParser::Tokens::AssumptionsBlk,
-      NexusParser::Tokens::CodonsBlk,
-      NexusParser::Tokens::MesquiteBlk,
-      NexusParser::Tokens::TreesBlk,
-      NexusParser::Tokens::LabelsBlk,
-      NexusParser::Tokens::TaxaBlk,
-      NexusParser::Tokens::NotesBlk,
-      NexusParser::Tokens::Title,
-      NexusParser::Tokens::Taxlabels,
-      NexusParser::Tokens::Dimensions,
-      NexusParser::Tokens::FileLbl,
-      NexusParser::Tokens::Format,
-      NexusParser::Tokens::RespectCase,
-      NexusParser::Tokens::Equals,
-      NexusParser::Tokens::ValuePair,  # this has bad overlap with Label and likely IDs (need to kill the latter, its a lesser Label)
-      NexusParser::Tokens::CharStateLabels,
-      NexusParser::Tokens::ChrsBlk,
-      NexusParser::Tokens::Number, # partial overlap with Label
-      NexusParser::Tokens::Matrix,
-      NexusParser::Tokens::SemiColon,
-      NexusParser::Tokens::MesquiteIDs,
-      NexusParser::Tokens::MesquiteBlockID,
-      NexusParser::Tokens::BlkEnd,
-      NexusParser::Tokens::Colon,
-      NexusParser::Tokens::BckSlash,
-      NexusParser::Tokens::Comma,
-      NexusParser::Tokens::LParen,
-      NexusParser::Tokens::RParen,
-      NexusParser::Tokens::LBracket,
-      NexusParser::Tokens::RBracket,
-      NexusParser::Tokens::Label, # must be before RowVec
-      NexusParser::Tokens::RowVec,
-      NexusParser::Tokens::LinkLine,
-      NexusParser::Tokens::ID # need to trash this
-    ]
-  end
-
 end
-
