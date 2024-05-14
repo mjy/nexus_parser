@@ -182,6 +182,16 @@ module NexusParser::Tokens
     @regexp = Regexp.new(/\A\s*(CHARSTATELABELS)\s*/i)
   end
 
+  # Unsupported, we raise on its presence inside a characters block
+  class CharLabels < Token
+    @regexp = Regexp.new(/\A\s*(CHARLABELS)\s*/i)
+  end
+
+  # Unsupported, we raise on its presence inside a characters block
+  class StateLabels < Token
+    @regexp = Regexp.new(/\A\s*(STATELABELS)\s*/i)
+  end
+
   class MesquiteIDs < Token
     @regexp = Regexp.new(/\A\s*(IDS[^;]*;)\s*/i)
   end

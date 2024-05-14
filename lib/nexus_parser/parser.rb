@@ -142,6 +142,8 @@ class NexusParser::Parser
         @lexer.pop(NexusParser::Tokens::MesquiteIDs) if @lexer.peek(NexusParser::Tokens::MesquiteIDs) # trashing these for now
         @lexer.pop(NexusParser::Tokens::MesquiteBlockID) if @lexer.peek(NexusParser::Tokens::MesquiteBlockID) # trashing these for now
 
+        raise(NexusParser::ParseError, "CHARLABELS/STATELABELS are unsupported - import then export your file in Mesquite to convert to CHARSTATELABELS instead") if (@lexer.peek(NexusParser::Tokens::CharLabels) || @lexer.peek(NexusParser::Tokens::StateLabels))
+
         false
       end
     end
