@@ -193,18 +193,45 @@ class Builder
     @opt.delete(:name)
 
     # the rest have states
-    @opt.keys.each do |k|
+    create_or_update_states_for_character(@index, @opt)
+  end
 
-      if (@nf.characters[@index].states != {}) && @nf.characters[@index].states[k] # state exists
+  def update_chr_name(i, name)
+    raise(ParseError, "There are #{@nf.characters.count} characters but we're trying to update from row #{i + 1} of the CHARLABELS list - check your NCHAR and/or the length of your list.") if !@nf.characters[i]
+
+    # The CHARLABELS list is unindexed, so users are allowed to use '_' to
+    # indicate that a character name is unspecified.
+    @nf.characters[i].name = (name == '_' ? '' : name)
+  end
+
+  # legal hash keys are :index and integers that point to state labels
+  def update_chr_states(options = {})
+    return false if !options[:index]
+
+    @opt = options
+
+    @index = @opt[:index].to_i
+
+    raise(ParseError, "Can't update character of index #{@index}, it doesn't exist! This is a problem parsing the STATELABELS. Check the indices.") if !@nf.characters[@index]
+
+    @opt.delete(:index)
+
+    # the rest have states
+    create_or_update_states_for_character(@index, @opt)
+  end
+
+  def create_or_update_states_for_character(i, options)
+    options.keys.each do |k|
+
+      if (@nf.characters[i].states != {}) && @nf.characters[i].states[k] # state exists
 
         ## !! ONLY HANDLES NAME, UPDATE TO HANDLE notes etc. when we get them ##
-        update_state(@index, :index => k, :name => @opt[k])
+        update_state(i, :index => k, :name => options[k])
 
       else # doesn't, create it
-        @nf.characters[@index].add_state(:label => k.to_s, :name => @opt[k])
+        @nf.characters[i].add_state(:label => k.to_s, :name => options[k])
       end
     end
-
   end
 
   def update_state(chr_index, options = {})

@@ -678,55 +678,51 @@ class Test_Parser < Test::Unit::TestCase
 
   def test_characters_charlabels_statelabels_block
     input=  "
-      DIMENSIONS  NCHAR=1;
+      DIMENSIONS  NCHAR=4;
       FORMAT DATATYPE = STANDARD GAP = - MISSING = ? SYMBOLS = \"  0 1 2 3 4 5 6 7 8 9 A\";
       CHARLABELS
         Tibia_II
         TII_macrosetae
-        Femoral_tuber
+        'Femoral tuber'
         _
-        Cymbium
-        Paracymbium
-        Globular_tegulum
-        _
-        Conductor_wraps_embolus
-        Median_apophysis
       ;
       STATELABELS
       1 norm modified,
-      2 '= TI' stronger,
-      3 abs pres 'm-setae',
-      5 dorsal mesal lateral,
-      6 abs pres,
-      7 abs pres,
-      8 entire w_lobe,
-      10 pres abs
+      3 3 3.5 4,
+      4 pres
       ;
       MATRIX
-      Dictyna                0?00201001
-      Uloborus               0?11000000
-      Deinopis               0?01002???
-      Nephila&Herennia       0?21010011
-      'Nephilengys_cruentata'0?(0,1)1010(0,1,2)11
-      Meta                   0?01A10011
-      Leucauge_venusta       ???--?-??-
-      Pachygnatha            0?210(0 1)0011
-      'Theridiosoma_01'      ??????????
-      Tetragnatha            0?01011011
-
+      Dictyna                -?1(01)
+      Uloborus               0321
     ;
     ENDBLOCK;"
 
     builder = NexusParser::Builder.new
-    @lexer = NexusParser::Lexer.new(input)
+    lexer = NexusParser::Lexer.new(input)
 
-    # stub the taxa, they would otherwise get added in dimensions or taxa block
-    (0..9).each{|i| builder.stub_taxon}
+    (0..3).each{|i| builder.stub_taxon}
 
-    assert_raise_with_message(NexusParser::ParseError,
-      /CHARLABELS\/STATELABELS are unsupported/) do
-      NexusParser::Parser.new(@lexer,builder).parse_characters_blk
-    end
+    NexusParser::Parser.new(lexer,builder).parse_characters_blk
+    foo = builder.nexus_file
+
+    assert_equal 4, foo.characters.size
+    assert_equal "Femoral tuber", foo.characters[2].name
+    assert_equal "Undefined", foo.characters[3].name
+
+    assert_equal "norm", foo.characters[0].states["0"].name
+    assert_equal "modified", foo.characters[0].states["1"].name
+
+    assert_equal "", foo.characters[1].states["3"].name
+
+    assert_equal ["3", "3.5", "4"], foo.characters[2].states.keys.collect{|s| foo.characters[2].states[s].name}.sort
+
+    assert_equal "", foo.characters[1].states["3"].name
+
+    assert_equal ["-"], foo.codings[0][0].states
+    assert_equal ["?"], foo.codings[0][1].states
+    assert_equal ["0", "1"], foo.codings[0][3].states
+
+    assert_equal ["3"], foo.codings[1][1].states
   end
 
   def test_codings
@@ -920,6 +916,59 @@ class Test_Parser < Test::Unit::TestCase
     assert_equal "ridged", foo.characters[29].states["1"].name
     assert_equal "squamate", foo.characters[29].states["2"].name
 
+  end
+
+  def test_parse_chr_labels
+    input =" CHARLABELS
+    _
+		'Maxillary teeth'
+    as_df
+		'Highest number of maxillary teeth (or alveoli):';
+    STATELABELS
+    1 more more more,"
+
+    builder = NexusParser::Builder.new
+    lexer = NexusParser::Lexer.new(input)
+
+    (0..3).each{builder.stub_chr()}
+
+    NexusParser::Parser.new(lexer,builder).parse_chr_labels
+
+    foo = builder.nexus_file
+    assert_equal 4, foo.characters.size
+    assert_equal 'Undefined', foo.characters[0].name
+    assert_equal 'Maxillary teeth', foo.characters[1].name
+    assert_equal 'as_df', foo.characters[2].name
+    assert_equal 'Highest number of maxillary teeth (or alveoli):', foo.characters[3].name
+  end
+
+  def test_parse_state_labels
+    input =" STATELABELS
+      1 norm modified,
+      3,
+      4 pres
+    ;
+    CHARLABELS;
+		"
+
+    builder = NexusParser::Builder.new
+    lexer = NexusParser::Lexer.new(input)
+
+    (0..3).each{builder.stub_chr()}
+
+    NexusParser::Parser.new(lexer,builder).parse_state_labels
+
+    foo = builder.nexus_file
+    assert_equal 4, foo.characters.size
+
+    assert_equal "norm", foo.characters[0].states["0"].name
+    assert_equal "modified", foo.characters[0].states["1"].name
+
+    assert_empty foo.characters[1].states
+
+    assert_empty foo.characters[2].states
+
+    assert_equal "pres", foo.characters[3].states["0"].name
   end
 
   def test_non_label_character_state_character_labels

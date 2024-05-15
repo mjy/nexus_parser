@@ -134,6 +134,10 @@ class NexusParser::Parser
 
         parse_chr_state_labels if @lexer.peek(NexusParser::Tokens::CharStateLabels)
 
+        parse_chr_labels if @lexer.peek(NexusParser::Tokens::CharLabels)
+
+        parse_state_labels if @lexer.peek(NexusParser::Tokens::StateLabels)
+
         parse_matrix if @lexer.peek(NexusParser::Tokens::Matrix)
 
         # handle "\s*OPTIONS MSTAXA = UNCERTAIN;\s\n" within a characters block (sticks in an infinite loop right now)
@@ -141,10 +145,6 @@ class NexusParser::Parser
 
         @lexer.pop(NexusParser::Tokens::MesquiteIDs) if @lexer.peek(NexusParser::Tokens::MesquiteIDs) # trashing these for now
         @lexer.pop(NexusParser::Tokens::MesquiteBlockID) if @lexer.peek(NexusParser::Tokens::MesquiteBlockID) # trashing these for now
-
-        raise(NexusParser::ParseError, "CHARLABELS/STATELABELS are unsupported - import then export your file in Mesquite to convert to CHARSTATELABELS instead") if (@lexer.peek(NexusParser::Tokens::CharLabels) || @lexer.peek(NexusParser::Tokens::StateLabels))
-
-        false
       end
     end
     @lexer.pop(NexusParser::Tokens::EndBlk)
@@ -222,6 +222,68 @@ class NexusParser::Parser
 
         raise(NexusParser::ParseError, "Error parsing character state labels for (or around) character #{index - 1}.") if !opts[:name]
         @builder.update_chr(opts)
+      end
+
+    end
+    @lexer.pop(NexusParser::Tokens::SemiColon)
+  end
+
+  def parse_chr_labels
+    @lexer.pop(NexusParser::Tokens::CharLabels)
+
+    inf = 0
+    while true
+      inf += 1
+      raise(NexusParser::ParseError,"Either you have a gazillion character labels or more likely the parser is caught in an infinite loop while trying to parse character labels. Check for double single quotes in this block.") if inf > 100000
+
+      if @lexer.peek(NexusParser::Tokens::SemiColon)
+        break
+      else
+        i = 0
+        while @lexer.peek(NexusParser::Tokens::CharacterLabel)
+          @builder.update_chr_name(
+            i, @lexer.pop(NexusParser::Tokens::CharacterLabel).value
+          )
+
+          i += 1
+        end
+      end
+    end
+    @lexer.pop(NexusParser::Tokens::SemiColon)
+  end
+
+  def parse_state_labels
+    @lexer.pop(NexusParser::Tokens::StateLabels)
+
+    inf = 0
+    while true
+      inf += 1
+      raise(NexusParser::ParseError,"Either you have a gazillion state labels or more likely the parser is caught in an infinite loop while trying to parse state labels. Check for double single quotes in this block.") if inf > 100000
+
+      if @lexer.peek(NexusParser::Tokens::SemiColon)
+        break
+      else
+        opts = {}
+
+        index = @lexer.pop(NexusParser::Tokens::PositiveInteger).value.to_i
+
+        if !@lexer.peek(NexusParser::Tokens::Comma) && !@lexer.peek(NexusParser::Tokens::SemiColon)
+          i = 0
+
+          while @lexer.peek(NexusParser::Tokens::CharacterLabel)
+            opts.update({
+              i.to_s => @lexer.pop(NexusParser::Tokens::CharacterLabel).value
+            })
+
+            i += 1
+          end
+        end
+
+        @lexer.pop(NexusParser::Tokens::Comma) if @lexer.peek(NexusParser::Tokens::Comma) # we may also have hit semicolon
+
+        opts.update({:index => (index - 1)})
+
+        @builder.update_chr_states(opts)
       end
 
     end
