@@ -336,12 +336,10 @@ class NexusParser::Parser
           # new row, so write the current one and then start a new one.
           if @vars[:type]
             @builder.add_note(@vars)
-
             @vars = {}
-            @vars.update(:type => @lexer.pop(NexusParser::Tokens::Label).value)
-          else
-            @vars.update(:type => @lexer.pop(NexusParser::Tokens::Label).value)
           end
+
+          @vars.update(:type => @lexer.pop(NexusParser::Tokens::Label).value)
         end
       end
     end
