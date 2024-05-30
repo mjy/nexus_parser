@@ -171,6 +171,9 @@ class Builder
       :name => ''
     }.merge!(options)
     return false if !@opt[:index]
+
+    raise(ParseError, "Trying to assign a name to taxon #{@opt[:index] + 1}, but there are only #{@nf.taxa.size} taxa - do some taxon names have internal (not at the ends) quotes?") if @nf.taxa[@opt[:index]].nil?
+
     (@nf.taxa[@opt[:index]].name = @opt[:name]) if @opt[:name]
   end
 
